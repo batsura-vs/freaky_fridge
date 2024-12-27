@@ -49,19 +49,24 @@ class ProductDatabase extends _$ProductDatabase {
   Future<int> insertProductRecord(ProductRecordCompanion record) =>
       into(productRecord).insert(record);
 
-  Future<List<ProductRecordWithProduct>> getProductRecordWithProduct() async {
+  Stream<List<ProductRecordWithProduct>>
+      watchAllProductRecordWithProduct() async* {
     final query = select(productRecord).join([
       innerJoin(product, product.id.equalsExp(productRecord.productId)),
     ]);
 
-    final result = await query.get();
-
-    return result.map((row) {
-      return ProductRecordWithProduct(
-        record: row.readTable(productRecord),
-        product: row.readTable(product),
-      );
-    }).toList();
+    yield* query.watch().map(
+      (rows) {
+        return rows
+            .map(
+              (row) => ProductRecordWithProduct(
+                record: row.readTable(productRecord),
+                product: row.readTable(product),
+              ),
+            )
+            .toList();
+      },
+    );
   }
 
   Future<List<ProductRecordWithProduct>>
@@ -71,7 +76,7 @@ class ProductDatabase extends _$ProductDatabase {
     ]);
 
     final result = await query.get();
-    
+
     return result.map((row) {
       return ProductRecordWithProduct(
         record: row.readTable(productRecord),
@@ -81,7 +86,8 @@ class ProductDatabase extends _$ProductDatabase {
   }
 
   Future<ProductRecordWithProduct?> getProductRecordWithProductById(
-      int id) async {
+    int id,
+  ) async {
     final query = select(productRecord).join([
       innerJoin(product, product.id.equalsExp(productRecord.productId)),
     ])

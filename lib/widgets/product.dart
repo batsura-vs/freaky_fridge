@@ -1,7 +1,8 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/controllers/product_controller.dart';
 import 'package:freaky_fridge/database/database.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Value;
 
 class ProductWidget extends StatelessWidget {
   final ProductController controller = Get.put(ProductController());
@@ -90,7 +91,12 @@ class ProductWidget extends StatelessWidget {
         child: const Icon(Icons.save),
         onPressed: () {
           if (controller.product.value.id.value == -1) {
-            ProductDatabase.instance.insertProduct(controller.product.value);
+            ProductDatabase.instance.insertProduct(
+              ProductCompanion.insert(
+                name: controller.product.value.name.value,
+                description: Value(controller.product.value.description.value),
+              ),
+            );
           } else {
             ProductDatabase.instance.updateProduct(controller.product.value);
           }

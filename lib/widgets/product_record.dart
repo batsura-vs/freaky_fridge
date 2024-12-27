@@ -1,7 +1,10 @@
+import 'dart:math';
+
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/database/database.dart';
 import 'package:freaky_fridge/controllers/product_record_controller.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Value;
 import 'package:intl/intl.dart';
 
 class ProductRecordWidget extends StatelessWidget {
@@ -25,12 +28,12 @@ class ProductRecordWidget extends StatelessWidget {
               onPressed: () => Get.back(),
             ),
             title: Text(
-              recordController.record.value.id.value == -1
+              recordController.id.value == -1
                   ? "New Product Record"
                   : "Edit Product Record",
             ),
             actions: <Widget>[
-              if (recordController.record.value.id.value != -1)
+              if (recordController.id.value != -1)
                 IconButton(
                   icon: const Icon(
                     Icons.delete,
@@ -38,8 +41,9 @@ class ProductRecordWidget extends StatelessWidget {
                   ),
                   onPressed: () {
                     ProductDatabase.instance.deleteProductRecord(
-                      recordController.record.value.id.value,
+                      recordController.id.value,
                     );
+                    Get.back();
                   },
                 ),
             ],
@@ -63,17 +67,26 @@ class ProductRecordWidget extends StatelessWidget {
                             viewConstraints: const BoxConstraints(
                               maxHeight: 300.0,
                             ),
-                            builder: (context, controller) => TextField(
-                              controller: controller,
-                              decoration: InputDecoration(
-                                labelText: 'Product',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
+                            builder: (context, controller) => Obx(
+                              () => TextFormField(
+                                key: UniqueKey(),
+                                initialValue: snapshot.data
+                                    ?.firstWhereOrNull(
+                                      (element) =>
+                                          element.id ==
+                                          recordController.productId.value,
+                                    )
+                                    ?.name,
+                                decoration: InputDecoration(
+                                  labelText: 'Product',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  suffixIcon: const Icon(Icons.inventory),
                                 ),
-                                suffixIcon: const Icon(Icons.inventory),
+                                onTap: () => controller.openView(),
+                                onChanged: (value) => controller.openView(),
                               ),
-                              onTap: () => controller.openView(),
-                              onChanged: (value) => controller.openView(),
                             ),
                             suggestionsBuilder: (context, controller) {
                               List<Widget> suggestions = [];
@@ -103,18 +116,20 @@ class ProductRecordWidget extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      initialValue:
-                          recordController.record.value.amount.value.toString(),
-                      decoration: InputDecoration(
-                        labelText: 'Amount',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                    child: Obx(
+                      () => TextFormField(
+                        initialValue: recordController.amount.toString(),
+                        decoration: InputDecoration(
+                          labelText: 'Amount',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
                         ),
+                        onChanged: (value) => recordController.updateAmount(
+                          max(int.tryParse(value) ?? 0, 0),
+                        ),
+                        keyboardType: TextInputType.number,
                       ),
-                      onChanged: (value) => recordController
-                          .updateAmount(int.tryParse(value) ?? 0),
-                      keyboardType: TextInputType.number,
                     ),
                   ),
                   Padding(
@@ -123,8 +138,7 @@ class ProductRecordWidget extends StatelessWidget {
                       onTap: () async {
                         DateTime? pickedDate = await showDatePicker(
                           context: context,
-                          initialDate:
-                              recordController.record.value.expiration.value,
+                          initialDate: recordController.expiration.value,
                           firstDate: DateTime(2000),
                           lastDate: DateTime(2101),
                         );
@@ -135,8 +149,9 @@ class ProductRecordWidget extends StatelessWidget {
                       child: Obx(
                         () => AbsorbPointer(
                           child: TextFormField(
+                            key: UniqueKey(),
                             initialValue: DateFormat.yMd().format(
-                              recordController.record.value.expiration.value,
+                              recordController.expiration.value,
                             ),
                             decoration: InputDecoration(
                               labelText: 'Expiration Date',
@@ -160,18 +175,22 @@ class ProductRecordWidget extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.save),
         onPressed: () {
-          print(recordController.record.value);
-          if (recordController.record.value.id.value == -1) {
+          if (recordController.id.value == -1) {
             ProductDatabase.instance.insertProductRecord(
               ProductRecordCompanion.insert(
-                productId: recordController.record.value.productId.value,
-                amount: recordController.record.value.amount.value,
-                expiration: recordController.record.value.expiration.value,
+                productId: recordController.productId.value,
+                amount: recordController.amount.value,
+                expiration: recordController.expiration.value,
               ),
             );
           } else {
             ProductDatabase.instance.updateProductRecord(
-              recordController.record.value,
+              ProductRecordCompanion.insert(
+                id: Value(recordController.id.value),
+                productId: recordController.productId.value,
+                amount: recordController.amount.value,
+                expiration: recordController.expiration.value,
+              ),
             );
           }
           Get.back();

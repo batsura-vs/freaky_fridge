@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/database/database.dart';
+import 'package:freaky_fridge/widgets/product_record.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class MainPage extends StatelessWidget {
@@ -7,8 +9,8 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: ProductDatabase.instance.getAllProductRecordWithProduct(),
+    return StreamBuilder(
+      stream: ProductDatabase.instance.watchAllProductRecordWithProduct(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(child: Text(snapshot.error.toString()));
@@ -68,17 +70,28 @@ class MainPage extends StatelessWidget {
                   ),
                   subtitle: Row(
                     children: [
+                      Chip(
+                        label: Text(
+                          "${snapshot.data![index].record.amount}x",
+                        ),
+                      ),
                       const SizedBox(
                         width: 4,
                       ),
                       ExpirationChip(
                         product: snapshot.data![index].record,
-                      )
+                      ),
                     ],
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.edit),
-                    onPressed: () {},
+                    onPressed: () {
+                      Get.to(
+                        () => ProductRecordWidget(
+                          product: snapshot.data![index].record,
+                        ),
+                      );
+                    },
                   ),
                 ),
               );
