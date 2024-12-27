@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:freaky_fridge/controllers/db.dart';
 import 'package:freaky_fridge/controllers/nav.dart';
 import 'package:freaky_fridge/entrypoint/entrypoit.dart';
 import 'package:freaky_fridge/pages/main/main.dart';
@@ -14,11 +13,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.put(DatabaseController(), tag: 'db');
     Get.put(
       NavigationController(
         pages: [
-          MainPage(),
+          const MainPage(),
           const Text("data2"),
           const Text("data3"),
         ],
@@ -29,7 +27,9 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Freaky Fridge Vers Z',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+        ),
         useMaterial3: true,
       ),
       home: AppEntrypoint(),
