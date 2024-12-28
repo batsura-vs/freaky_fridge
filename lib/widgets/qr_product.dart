@@ -14,7 +14,7 @@ class QrProductWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final painter = QrPainter(
-      data: 'The painter is this thing',
+      data: product.id.toString(),
       version: QrVersions.auto,
     );
     return Scaffold(
