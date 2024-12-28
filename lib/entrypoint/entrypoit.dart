@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/controllers/nav.dart';
-import 'package:freaky_fridge/widgets/product.dart';
-import 'package:freaky_fridge/widgets/product_record.dart';
+import 'package:freaky_fridge/widgets/qr_scanner.dart';
 import 'package:get/get.dart';
 
 class AppEntrypoint extends StatelessWidget {
@@ -19,7 +18,9 @@ class AppEntrypoint extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.qr_code),
-        onPressed: () {},
+        onPressed: () {
+          Get.to(() => const BarcodeScannerSimple());
+        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: Obx(
@@ -40,14 +41,14 @@ class AppEntrypoint extends StatelessWidget {
                   Icons.search,
                   size: controller.currentIndex.value == 1 ? 30.0 : 24.0,
                 ),
-                onPressed: () => Get.to(() => ProductWidget()),
+                onPressed: () => controller.navigateTo(1),
               ),
               IconButton(
                 icon: Icon(
                   Icons.person,
                   size: controller.currentIndex.value == 2 ? 30.0 : 24.0,
                 ),
-                onPressed: () => Get.to(() => ProductRecordWidget()),
+                onPressed: () => controller.navigateTo(2),
               ),
             ],
           ),

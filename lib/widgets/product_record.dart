@@ -79,6 +79,7 @@ class ProductRecordWidget extends StatelessWidget {
                                     ?.name,
                                 decoration: InputDecoration(
                                   labelText: 'Product',
+                                  hintText: '${recordController.id}#',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
@@ -118,7 +119,7 @@ class ProductRecordWidget extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Obx(
                       () => TextFormField(
-                        initialValue: recordController.amount.toString(),
+                        initialValue: recordController.amount.value.toString(),
                         decoration: InputDecoration(
                           labelText: 'Amount',
                           border: OutlineInputBorder(

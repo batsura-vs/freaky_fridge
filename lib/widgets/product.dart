@@ -39,6 +39,7 @@ class ProductWidget extends StatelessWidget {
                     ProductDatabase.instance.deleteProduct(
                       controller.product.value.id.value,
                     );
+                    Get.back();
                   },
                 ),
             ],

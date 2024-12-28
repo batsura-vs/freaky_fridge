@@ -4,8 +4,8 @@ import 'package:freaky_fridge/widgets/product_record.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-class MainPage extends StatelessWidget {
-  const MainPage({super.key});
+class RecordsPage extends StatelessWidget {
+  const RecordsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +35,14 @@ class MainPage extends StatelessWidget {
                   controller: controller,
                   onTap: () => controller.openView(),
                   onChanged: (value) => controller.openView(),
+                  trailing: [
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () => Get.to(
+                        () => ProductRecordWidget(),
+                      ),
+                    ),
+                  ],
                 ),
                 suggestionsBuilder: (context, controller) {
                   List<Widget> suggestions = [];
@@ -59,43 +67,46 @@ class MainPage extends StatelessWidget {
               ),
             ),
           ),
-          body: ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              return Card(
-                child: ListTile(
-                  isThreeLine: true,
-                  title: Text(
-                    snapshot.data![index].product.name,
-                  ),
-                  subtitle: Row(
-                    children: [
-                      Chip(
-                        label: Text(
-                          "${snapshot.data![index].record.amount}x",
+          body: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  child: ListTile(
+                    isThreeLine: true,
+                    title: Text(
+                      snapshot.data![index].product.name,
+                    ),
+                    subtitle: Row(
+                      children: [
+                        Chip(
+                          label: Text(
+                            "${snapshot.data![index].record.amount}x",
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      ExpirationChip(
-                        product: snapshot.data![index].record,
-                      ),
-                    ],
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () {
-                      Get.to(
-                        () => ProductRecordWidget(
+                        const SizedBox(
+                          width: 4,
+                        ),
+                        ExpirationChip(
                           product: snapshot.data![index].record,
                         ),
-                      );
-                    },
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: () {
+                        Get.to(
+                          () => ProductRecordWidget(
+                            product: snapshot.data![index].record,
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         );
       },

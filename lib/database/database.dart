@@ -22,7 +22,11 @@ class ProductDatabase extends _$ProductDatabase {
     return driftDatabase(name: 'productdb');
   }
 
+  static ProductDatabase get instance => _instance;
+
   Future<List<ProductData>> get allProducts => select(product).get();
+
+  Stream<List<ProductData>> watchAllProducts() => select(product).watch();
 
   Future<List<ProductRecordData>> get allProductRecords =>
       select(productRecord).get();
@@ -37,8 +41,6 @@ class ProductDatabase extends _$ProductDatabase {
 
   Future<int> deleteProductRecord(int id) =>
       (delete(productRecord)..where((tbl) => tbl.id.equals(id))).go();
-
-  static ProductDatabase get instance => _instance;
 
   Future<bool> updateProduct(ProductCompanion prod) =>
       update(product).replace(prod);

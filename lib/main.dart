@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/controllers/nav.dart';
 import 'package:freaky_fridge/entrypoint/entrypoit.dart';
-import 'package:freaky_fridge/pages/main/main.dart';
+import 'package:freaky_fridge/pages/products.dart';
+import 'package:freaky_fridge/pages/records.dart';
 import 'package:get/get.dart';
 
 Future<void> main() async {
@@ -16,8 +17,8 @@ class MyApp extends StatelessWidget {
     Get.put(
       NavigationController(
         pages: [
-          const MainPage(),
-          const Text("data2"),
+          const RecordsPage(),
+          const ProductsPage(),
           const Text("data3"),
         ],
         index: 0,
