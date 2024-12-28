@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:freaky_fridge/controllers/nav.dart';
+import 'package:freaky_fridge/controllers/nav_controller.dart';
 import 'package:freaky_fridge/entrypoint/entrypoit.dart';
 import 'package:freaky_fridge/pages/products.dart';
 import 'package:freaky_fridge/pages/records.dart';
