@@ -24,12 +24,10 @@ class ProductWidget extends StatelessWidget {
               onPressed: () => Get.back(),
             ),
             title: Text(
-              controller.product.value.id.value == -1
-                  ? "New Product"
-                  : "Edit Product",
+              controller.id.value == -1 ? "New Product" : "Edit Product",
             ),
             actions: <Widget>[
-              if (controller.product.value.id.value != -1)
+              if (controller.id.value != -1)
                 IconButton(
                   icon: const Icon(
                     Icons.delete,
@@ -37,7 +35,7 @@ class ProductWidget extends StatelessWidget {
                   ),
                   onPressed: () {
                     ProductDatabase.instance.deleteProduct(
-                      controller.product.value.id.value,
+                      controller.id.value,
                     );
                     Get.back();
                   },
@@ -52,7 +50,7 @@ class ProductWidget extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Obx(
                       () => TextFormField(
-                        initialValue: controller.product.value.name.value,
+                        initialValue: controller.name.value,
                         decoration: InputDecoration(
                           labelText: 'Name',
                           border: OutlineInputBorder(
@@ -67,8 +65,7 @@ class ProductWidget extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Obx(
                       () => TextFormField(
-                        initialValue:
-                            controller.product.value.description.value ?? '',
+                        initialValue: controller.description.value,
                         minLines: 3,
                         maxLines: 5,
                         decoration: InputDecoration(
@@ -91,15 +88,19 @@ class ProductWidget extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.save),
         onPressed: () {
-          if (controller.product.value.id.value == -1) {
+          if (controller.id.value == -1) {
             ProductDatabase.instance.insertProduct(
               ProductCompanion.insert(
-                name: controller.product.value.name.value,
-                description: Value(controller.product.value.description.value),
+                name: controller.name.value,
+                description: Value(controller.description.value),
               ),
             );
           } else {
-            ProductDatabase.instance.updateProduct(controller.product.value);
+            ProductDatabase.instance.updateProduct(ProductCompanion(
+              id: Value(controller.id.value),
+              name: Value(controller.name.value),
+              description: Value(controller.description.value),
+            ));
           }
           Get.back();
         },
