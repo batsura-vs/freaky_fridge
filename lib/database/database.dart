@@ -160,7 +160,8 @@ class ProductDatabase extends _$ProductDatabase {
   // ProductWithTransaction methods
   Future<List<ProductWithTransaction>> getAllProductWithTransaction() async {
     final query = select(product).join([
-      innerJoin(productTransaction, product.id.equalsExp(productTransaction.productId)),
+      innerJoin(productTransaction,
+          product.id.equalsExp(productTransaction.productId)),
     ]);
 
     final result = await query.get();
@@ -177,7 +178,8 @@ class ProductDatabase extends _$ProductDatabase {
 
   Stream<List<ProductWithTransaction>> watchAllProductWithTransaction() {
     final query = select(product).join([
-      innerJoin(productTransaction, product.id.equalsExp(productTransaction.productId)),
+      innerJoin(productTransaction,
+          product.id.equalsExp(productTransaction.productId)),
     ]);
 
     return query.watch().map(

@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         pages: [
           RecordsPage(),
           ProductsPage(),
-          Text("data3"),
+          const Text("data3"),
         ],
         index: 0,
       ),
