@@ -1,11 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchController;
 import 'package:freaky_fridge/database/database.dart';
-import 'package:freaky_fridge/widgets/product.dart';
-import 'package:freaky_fridge/widgets/qr_product.dart';
+import 'package:freaky_fridge/pages/creation/product.dart';
+import 'package:freaky_fridge/pages/qr/qr_product.dart';
 import 'package:get/get.dart';
+import 'package:freaky_fridge/controllers/search_controller.dart';
 
 class ProductsPage extends StatelessWidget {
-  const ProductsPage({super.key});
+  ProductsPage({super.key});
+
+  final searchController = Get.put(SearchController());
 
   @override
   Widget build(BuildContext context) {
@@ -27,31 +30,47 @@ class ProductsPage extends StatelessWidget {
                 hintText: "Search",
                 controller: controller,
                 onTap: () => controller.openView(),
-                onChanged: (value) => controller.openView(),
+                onSubmitted: (value) {
+                  searchController.updateSearchQuery(value);
+                },
+                onTapOutside: (event) {
+                  if (controller.isOpen) {
+                    controller.closeView(controller.text);
+                    searchController.updateSearchQuery(controller.text);
+                  }
+                },
+                onChanged: (value) {
+                  searchController.updateSearchQuery(value);
+                },
                 trailing: [
                   IconButton(
                     icon: const Icon(Icons.add),
                     onPressed: () => Get.to(
-                      () => ProductWidget(),
+                      () => ProductPage(),
                     ),
                   ),
                 ],
               ),
               suggestionsBuilder: (context, controller) {
                 List<Widget> suggestions = [];
-                for (var product in snapshot.data!) {
-                  if (product.name
-                      .toLowerCase()
-                      .contains(controller.text.toLowerCase())) {
-                    suggestions.add(
-                      ListTile(
-                        title: Text(product.name),
-                        onTap: () => controller.closeView(product.name),
-                      ),
-                    );
-                  }
-                  if (suggestions.length > 5) {
-                    break;
+                if (snapshot.hasData) {
+                  for (var product in snapshot.data!) {
+                    if (product.name
+                        .toLowerCase()
+                        .contains(controller.text.toLowerCase())) {
+                      suggestions.add(
+                        ListTile(
+                          title: Text(product.name),
+                          onTap: () {
+                            controller.closeView(product.name);
+                            searchController.updateSearchQuery(product.name);
+                          },
+                        ),
+                      );
+                    }
+                    if (suggestions.length > 5) {
+                      break;
+                    }
                   }
                 }
                 return suggestions;
@@ -63,30 +82,42 @@ class ProductsPage extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: snapshot.hasData
               ? snapshot.data!.isNotEmpty
-                  ? ListView.builder(
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (context, index) => Card(
-                        child: ListTile(
-                          title: Text(snapshot.data![index].name),
-                          subtitle: snapshot.data![index].description == null
-                              ? null
-                              : Text(snapshot.data![index].description!),
-                          onTap: () => Get.to(
-                            () => ProductWidget(
-                              product: snapshot.data![index],
+                  ? Obx(() {
+                      final filteredProducts = snapshot.data!
+                          .where(
+                            (product) => product.name.toLowerCase().contains(
+                                  searchController.searchQuery.value
+                                      .toLowerCase(),
+                                ),
+                          )
+                          .toList();
+                      return ListView.builder(
+                        key: UniqueKey(),
+                        itemCount: filteredProducts.length,
+                        itemBuilder: (context, index) => Card(
+                          child: ListTile(
+                            title: Text(filteredProducts[index].name),
+                            subtitle: filteredProducts[index].description ==
+                                    null
+                                ? null
+                                : Text(filteredProducts[index].description!),
+                            onTap: () => Get.to(
+                              () => ProductPage(
+                                product: filteredProducts[index],
+                              ),
                             ),
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.qr_code),
-                            onPressed: () => Get.to(
-                              () => QrProductWidget(
-                                product: snapshot.data![index],
+                            trailing: IconButton(
+                              icon: const Icon(Icons.qr_code),
+                              onPressed: () => Get.to(
+                                () => QrProductWidget(
+                                  product: filteredProducts[index],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    )
+                      );
+                    })
                   : const Center(child: Text("No products"))
               : const Center(child: CircularProgressIndicator()),
         ),

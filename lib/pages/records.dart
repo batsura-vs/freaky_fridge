@@ -1,11 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchController;
 import 'package:freaky_fridge/database/database.dart';
-import 'package:freaky_fridge/widgets/product_record.dart';
+import 'package:freaky_fridge/pages/creation/product_record.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:freaky_fridge/controllers/search_controller.dart';
 
 class RecordsPage extends StatelessWidget {
-  const RecordsPage({super.key});
+  RecordsPage({super.key});
+
+  final searchController = Get.put(SearchController());
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +37,23 @@ class RecordsPage extends StatelessWidget {
                   hintText: "Search",
                   controller: controller,
                   onTap: () => controller.openView(),
-                  onChanged: (value) => controller.openView(),
+                  onSubmitted: (value) {
+                    searchController.updateSearchQuery(value);
+                  },
+                  onTapOutside: (event) {
+                    if (controller.isOpen) {
+                      controller.closeView(controller.text);
+                      searchController.updateSearchQuery(controller.text);
+                    }
+                  },
+                  onChanged: (value) {
+                    searchController.updateSearchQuery(value);
+                  },
                   trailing: [
                     IconButton(
                       icon: const Icon(Icons.add),
                       onPressed: () => Get.to(
-                        () => ProductRecordWidget(),
+                        () => ProductRecordPage(),
                       ),
                     ),
                   ],
@@ -53,8 +67,14 @@ class RecordsPage extends StatelessWidget {
                       suggestions.add(
                         ListTile(
                           title: Text(record.product.name),
-                          onTap: () =>
-                              controller.closeView(record.product.name),
+                          onTap: () {
+                            controller.closeView(
+                              record.product.name,
+                            );
+                            searchController.updateSearchQuery(
+                              record.product.name,
+                            );
+                          },
                         ),
                       );
                     }
@@ -69,44 +89,58 @@ class RecordsPage extends StatelessWidget {
           ),
           body: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  child: ListTile(
-                    isThreeLine: true,
-                    title: Text(
-                      snapshot.data![index].product.name,
-                    ),
-                    subtitle: Row(
-                      children: [
-                        Chip(
-                          label: Text(
-                            "${snapshot.data![index].record.amount}x",
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 4,
-                        ),
-                        ExpirationChip(
-                          product: snapshot.data![index].record,
-                        ),
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () {
-                        Get.to(
-                          () => ProductRecordWidget(
-                            product: snapshot.data![index].record,
+            child: snapshot.hasData
+                ? Obx(() {
+                    final filteredRecords = snapshot.data!
+                        .where(
+                          (record) =>
+                              record.product.name.toLowerCase().contains(
+                                    searchController.searchQuery.value
+                                        .toLowerCase(),
+                                  ),
+                        )
+                        .toList();
+                    return ListView.builder(
+                      key: UniqueKey(),
+                      itemCount: filteredRecords.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          child: ListTile(
+                            isThreeLine: true,
+                            title: Text(
+                              filteredRecords[index].product.name,
+                            ),
+                            subtitle: Row(
+                              children: [
+                                Chip(
+                                  label: Text(
+                                    "${filteredRecords[index].record.amount}x",
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 4,
+                                ),
+                                ExpirationChip(
+                                  product: filteredRecords[index].record,
+                                ),
+                              ],
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                Get.to(
+                                  () => ProductRecordPage(
+                                    product: filteredRecords[index].record,
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         );
                       },
-                    ),
-                  ),
-                );
-              },
-            ),
+                    );
+                  })
+                : const Center(child: CircularProgressIndicator()),
           ),
         );
       },

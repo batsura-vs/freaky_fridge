@@ -7,11 +7,11 @@ import 'package:freaky_fridge/controllers/product_record_controller.dart';
 import 'package:get/get.dart' hide Value;
 import 'package:intl/intl.dart';
 
-class ProductRecordWidget extends StatelessWidget {
+class ProductRecordPage extends StatelessWidget {
   final ProductRecordController recordController =
       Get.put(ProductRecordController());
 
-  ProductRecordWidget({super.key, ProductRecordData? product}) {
+  ProductRecordPage({super.key, ProductRecordData? product}) {
     if (product != null) {
       recordController.updateProduct(product);
     }

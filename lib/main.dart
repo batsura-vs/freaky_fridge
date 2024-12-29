@@ -5,7 +5,8 @@ import 'package:freaky_fridge/pages/products.dart';
 import 'package:freaky_fridge/pages/records.dart';
 import 'package:get/get.dart';
 
-Future<void> main() async {
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -17,9 +18,9 @@ class MyApp extends StatelessWidget {
     Get.put(
       NavigationController(
         pages: [
-          const RecordsPage(),
-          const ProductsPage(),
-          const Text("data3"),
+          RecordsPage(),
+          ProductsPage(),
+          Text("data3"),
         ],
         index: 0,
       ),

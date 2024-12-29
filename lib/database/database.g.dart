@@ -665,18 +665,329 @@ class ProductRecordCompanion extends UpdateCompanion<ProductRecordData> {
   }
 }
 
+class $ProductTransactionTable extends ProductTransaction
+    with TableInfo<$ProductTransactionTable, ProductTransactionData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductTransactionTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _productIdMeta =
+      const VerificationMeta('productId');
+  @override
+  late final GeneratedColumn<int> productId = GeneratedColumn<int>(
+      'product_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES product (id)'));
+  static const VerificationMeta _transactionDateMeta =
+      const VerificationMeta('transactionDate');
+  @override
+  late final GeneratedColumn<DateTime> transactionDate =
+      GeneratedColumn<DateTime>('transaction_date', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _quantityMeta =
+      const VerificationMeta('quantity');
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+      'quantity', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, productId, transactionDate, quantity, type];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'product_transaction';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ProductTransactionData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(_productIdMeta,
+          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('transaction_date')) {
+      context.handle(
+          _transactionDateMeta,
+          transactionDate.isAcceptableOrUnknown(
+              data['transaction_date']!, _transactionDateMeta));
+    } else if (isInserting) {
+      context.missing(_transactionDateMeta);
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(_quantityMeta,
+          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
+    } else if (isInserting) {
+      context.missing(_quantityMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductTransactionData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProductTransactionData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      productId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}product_id'])!,
+      transactionDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}transaction_date'])!,
+      quantity: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+    );
+  }
+
+  @override
+  $ProductTransactionTable createAlias(String alias) {
+    return $ProductTransactionTable(attachedDatabase, alias);
+  }
+}
+
+class ProductTransactionData extends DataClass
+    implements Insertable<ProductTransactionData> {
+  final int id;
+  final int productId;
+  final DateTime transactionDate;
+  final int quantity;
+  final String type;
+  const ProductTransactionData(
+      {required this.id,
+      required this.productId,
+      required this.transactionDate,
+      required this.quantity,
+      required this.type});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['product_id'] = Variable<int>(productId);
+    map['transaction_date'] = Variable<DateTime>(transactionDate);
+    map['quantity'] = Variable<int>(quantity);
+    map['type'] = Variable<String>(type);
+    return map;
+  }
+
+  ProductTransactionCompanion toCompanion(bool nullToAbsent) {
+    return ProductTransactionCompanion(
+      id: Value(id),
+      productId: Value(productId),
+      transactionDate: Value(transactionDate),
+      quantity: Value(quantity),
+      type: Value(type),
+    );
+  }
+
+  factory ProductTransactionData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductTransactionData(
+      id: serializer.fromJson<int>(json['id']),
+      productId: serializer.fromJson<int>(json['productId']),
+      transactionDate: serializer.fromJson<DateTime>(json['transactionDate']),
+      quantity: serializer.fromJson<int>(json['quantity']),
+      type: serializer.fromJson<String>(json['type']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'productId': serializer.toJson<int>(productId),
+      'transactionDate': serializer.toJson<DateTime>(transactionDate),
+      'quantity': serializer.toJson<int>(quantity),
+      'type': serializer.toJson<String>(type),
+    };
+  }
+
+  ProductTransactionData copyWith(
+          {int? id,
+          int? productId,
+          DateTime? transactionDate,
+          int? quantity,
+          String? type}) =>
+      ProductTransactionData(
+        id: id ?? this.id,
+        productId: productId ?? this.productId,
+        transactionDate: transactionDate ?? this.transactionDate,
+        quantity: quantity ?? this.quantity,
+        type: type ?? this.type,
+      );
+  ProductTransactionData copyWithCompanion(ProductTransactionCompanion data) {
+    return ProductTransactionData(
+      id: data.id.present ? data.id.value : this.id,
+      productId: data.productId.present ? data.productId.value : this.productId,
+      transactionDate: data.transactionDate.present
+          ? data.transactionDate.value
+          : this.transactionDate,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      type: data.type.present ? data.type.value : this.type,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductTransactionData(')
+          ..write('id: $id, ')
+          ..write('productId: $productId, ')
+          ..write('transactionDate: $transactionDate, ')
+          ..write('quantity: $quantity, ')
+          ..write('type: $type')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, productId, transactionDate, quantity, type);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductTransactionData &&
+          other.id == this.id &&
+          other.productId == this.productId &&
+          other.transactionDate == this.transactionDate &&
+          other.quantity == this.quantity &&
+          other.type == this.type);
+}
+
+class ProductTransactionCompanion
+    extends UpdateCompanion<ProductTransactionData> {
+  final Value<int> id;
+  final Value<int> productId;
+  final Value<DateTime> transactionDate;
+  final Value<int> quantity;
+  final Value<String> type;
+  const ProductTransactionCompanion({
+    this.id = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.transactionDate = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.type = const Value.absent(),
+  });
+  ProductTransactionCompanion.insert({
+    this.id = const Value.absent(),
+    required int productId,
+    required DateTime transactionDate,
+    required int quantity,
+    required String type,
+  })  : productId = Value(productId),
+        transactionDate = Value(transactionDate),
+        quantity = Value(quantity),
+        type = Value(type);
+  static Insertable<ProductTransactionData> custom({
+    Expression<int>? id,
+    Expression<int>? productId,
+    Expression<DateTime>? transactionDate,
+    Expression<int>? quantity,
+    Expression<String>? type,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (productId != null) 'product_id': productId,
+      if (transactionDate != null) 'transaction_date': transactionDate,
+      if (quantity != null) 'quantity': quantity,
+      if (type != null) 'type': type,
+    });
+  }
+
+  ProductTransactionCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? productId,
+      Value<DateTime>? transactionDate,
+      Value<int>? quantity,
+      Value<String>? type}) {
+    return ProductTransactionCompanion(
+      id: id ?? this.id,
+      productId: productId ?? this.productId,
+      transactionDate: transactionDate ?? this.transactionDate,
+      quantity: quantity ?? this.quantity,
+      type: type ?? this.type,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
+    }
+    if (transactionDate.present) {
+      map['transaction_date'] = Variable<DateTime>(transactionDate.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductTransactionCompanion(')
+          ..write('id: $id, ')
+          ..write('productId: $productId, ')
+          ..write('transactionDate: $transactionDate, ')
+          ..write('quantity: $quantity, ')
+          ..write('type: $type')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$ProductDatabase extends GeneratedDatabase {
   _$ProductDatabase(QueryExecutor e) : super(e);
   $ProductDatabaseManager get managers => $ProductDatabaseManager(this);
   late final $ProductTable product = $ProductTable(this);
   late final $CategoryTable category = $CategoryTable(this);
   late final $ProductRecordTable productRecord = $ProductRecordTable(this);
+  late final $ProductTransactionTable productTransaction =
+      $ProductTransactionTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [product, category, productRecord];
+      [product, category, productRecord, productTransaction];
 }
 
 typedef $$ProductTableCreateCompanionBuilder = ProductCompanion Function({
@@ -705,6 +1016,24 @@ final class $$ProductTableReferences
         .filter((f) => f.productId.id($_item.id));
 
     final cache = $_typedResult.readTableOrNull(_productRecordRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$ProductTransactionTable,
+      List<ProductTransactionData>> _productTransactionRefsTable(
+          _$ProductDatabase db) =>
+      MultiTypedResultKey.fromTable(db.productTransaction,
+          aliasName: $_aliasNameGenerator(
+              db.product.id, db.productTransaction.productId));
+
+  $$ProductTransactionTableProcessedTableManager get productTransactionRefs {
+    final manager =
+        $$ProductTransactionTableTableManager($_db, $_db.productTransaction)
+            .filter((f) => f.productId.id($_item.id));
+
+    final cache =
+        $_typedResult.readTableOrNull(_productTransactionRefsTable($_db));
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
@@ -741,6 +1070,27 @@ class $$ProductTableFilterComposer
             $$ProductRecordTableFilterComposer(
               $db: $db,
               $table: $db.productRecord,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> productTransactionRefs(
+      Expression<bool> Function($$ProductTransactionTableFilterComposer f) f) {
+    final $$ProductTransactionTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.productTransaction,
+        getReferencedColumn: (t) => t.productId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProductTransactionTableFilterComposer(
+              $db: $db,
+              $table: $db.productTransaction,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -807,6 +1157,28 @@ class $$ProductTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> productTransactionRefs<T extends Object>(
+      Expression<T> Function($$ProductTransactionTableAnnotationComposer a) f) {
+    final $$ProductTransactionTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.productTransaction,
+            getReferencedColumn: (t) => t.productId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ProductTransactionTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.productTransaction,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$ProductTableTableManager extends RootTableManager<
@@ -820,7 +1192,8 @@ class $$ProductTableTableManager extends RootTableManager<
     $$ProductTableUpdateCompanionBuilder,
     (ProductData, $$ProductTableReferences),
     ProductData,
-    PrefetchHooks Function({bool productRecordRefs})> {
+    PrefetchHooks Function(
+        {bool productRecordRefs, bool productTransactionRefs})> {
   $$ProductTableTableManager(_$ProductDatabase db, $ProductTable table)
       : super(TableManagerState(
           db: db,
@@ -855,11 +1228,13 @@ class $$ProductTableTableManager extends RootTableManager<
               .map((e) =>
                   (e.readTable(table), $$ProductTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({productRecordRefs = false}) {
+          prefetchHooksCallback: (
+              {productRecordRefs = false, productTransactionRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (productRecordRefs) db.productRecord
+                if (productRecordRefs) db.productRecord,
+                if (productTransactionRefs) db.productTransaction
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -872,6 +1247,18 @@ class $$ProductTableTableManager extends RootTableManager<
                         managerFromTypedResult: (p0) =>
                             $$ProductTableReferences(db, table, p0)
                                 .productRecordRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.productId == item.id),
+                        typedResults: items),
+                  if (productTransactionRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$ProductTableReferences
+                            ._productTransactionRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProductTableReferences(db, table, p0)
+                                .productTransactionRefs,
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.productId == item.id),
@@ -894,7 +1281,8 @@ typedef $$ProductTableProcessedTableManager = ProcessedTableManager<
     $$ProductTableUpdateCompanionBuilder,
     (ProductData, $$ProductTableReferences),
     ProductData,
-    PrefetchHooks Function({bool productRecordRefs})>;
+    PrefetchHooks Function(
+        {bool productRecordRefs, bool productTransactionRefs})>;
 typedef $$CategoryTableCreateCompanionBuilder = CategoryCompanion Function({
   Value<int> id,
   required String name,
@@ -1269,6 +1657,279 @@ typedef $$ProductRecordTableProcessedTableManager = ProcessedTableManager<
     (ProductRecordData, $$ProductRecordTableReferences),
     ProductRecordData,
     PrefetchHooks Function({bool productId})>;
+typedef $$ProductTransactionTableCreateCompanionBuilder
+    = ProductTransactionCompanion Function({
+  Value<int> id,
+  required int productId,
+  required DateTime transactionDate,
+  required int quantity,
+  required String type,
+});
+typedef $$ProductTransactionTableUpdateCompanionBuilder
+    = ProductTransactionCompanion Function({
+  Value<int> id,
+  Value<int> productId,
+  Value<DateTime> transactionDate,
+  Value<int> quantity,
+  Value<String> type,
+});
+
+final class $$ProductTransactionTableReferences extends BaseReferences<
+    _$ProductDatabase, $ProductTransactionTable, ProductTransactionData> {
+  $$ProductTransactionTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProductTable _productIdTable(_$ProductDatabase db) =>
+      db.product.createAlias(
+          $_aliasNameGenerator(db.productTransaction.productId, db.product.id));
+
+  $$ProductTableProcessedTableManager get productId {
+    final manager = $$ProductTableTableManager($_db, $_db.product)
+        .filter((f) => f.id($_item.productId!));
+    final item = $_typedResult.readTableOrNull(_productIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$ProductTransactionTableFilterComposer
+    extends Composer<_$ProductDatabase, $ProductTransactionTable> {
+  $$ProductTransactionTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get transactionDate => $composableBuilder(
+      column: $table.transactionDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  $$ProductTableFilterComposer get productId {
+    final $$ProductTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.productId,
+        referencedTable: $db.product,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProductTableFilterComposer(
+              $db: $db,
+              $table: $db.product,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ProductTransactionTableOrderingComposer
+    extends Composer<_$ProductDatabase, $ProductTransactionTable> {
+  $$ProductTransactionTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get transactionDate => $composableBuilder(
+      column: $table.transactionDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  $$ProductTableOrderingComposer get productId {
+    final $$ProductTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.productId,
+        referencedTable: $db.product,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProductTableOrderingComposer(
+              $db: $db,
+              $table: $db.product,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ProductTransactionTableAnnotationComposer
+    extends Composer<_$ProductDatabase, $ProductTransactionTable> {
+  $$ProductTransactionTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get transactionDate => $composableBuilder(
+      column: $table.transactionDate, builder: (column) => column);
+
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  $$ProductTableAnnotationComposer get productId {
+    final $$ProductTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.productId,
+        referencedTable: $db.product,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProductTableAnnotationComposer(
+              $db: $db,
+              $table: $db.product,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ProductTransactionTableTableManager extends RootTableManager<
+    _$ProductDatabase,
+    $ProductTransactionTable,
+    ProductTransactionData,
+    $$ProductTransactionTableFilterComposer,
+    $$ProductTransactionTableOrderingComposer,
+    $$ProductTransactionTableAnnotationComposer,
+    $$ProductTransactionTableCreateCompanionBuilder,
+    $$ProductTransactionTableUpdateCompanionBuilder,
+    (ProductTransactionData, $$ProductTransactionTableReferences),
+    ProductTransactionData,
+    PrefetchHooks Function({bool productId})> {
+  $$ProductTransactionTableTableManager(
+      _$ProductDatabase db, $ProductTransactionTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProductTransactionTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProductTransactionTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProductTransactionTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> productId = const Value.absent(),
+            Value<DateTime> transactionDate = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<String> type = const Value.absent(),
+          }) =>
+              ProductTransactionCompanion(
+            id: id,
+            productId: productId,
+            transactionDate: transactionDate,
+            quantity: quantity,
+            type: type,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int productId,
+            required DateTime transactionDate,
+            required int quantity,
+            required String type,
+          }) =>
+              ProductTransactionCompanion.insert(
+            id: id,
+            productId: productId,
+            transactionDate: transactionDate,
+            quantity: quantity,
+            type: type,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ProductTransactionTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({productId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (productId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.productId,
+                    referencedTable:
+                        $$ProductTransactionTableReferences._productIdTable(db),
+                    referencedColumn: $$ProductTransactionTableReferences
+                        ._productIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$ProductTransactionTableProcessedTableManager = ProcessedTableManager<
+    _$ProductDatabase,
+    $ProductTransactionTable,
+    ProductTransactionData,
+    $$ProductTransactionTableFilterComposer,
+    $$ProductTransactionTableOrderingComposer,
+    $$ProductTransactionTableAnnotationComposer,
+    $$ProductTransactionTableCreateCompanionBuilder,
+    $$ProductTransactionTableUpdateCompanionBuilder,
+    (ProductTransactionData, $$ProductTransactionTableReferences),
+    ProductTransactionData,
+    PrefetchHooks Function({bool productId})>;
 
 class $ProductDatabaseManager {
   final _$ProductDatabase _db;
@@ -1279,4 +1940,6 @@ class $ProductDatabaseManager {
       $$CategoryTableTableManager(_db, _db.category);
   $$ProductRecordTableTableManager get productRecord =>
       $$ProductRecordTableTableManager(_db, _db.productRecord);
+  $$ProductTransactionTableTableManager get productTransaction =>
+      $$ProductTransactionTableTableManager(_db, _db.productTransaction);
 }

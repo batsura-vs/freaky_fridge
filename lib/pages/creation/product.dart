@@ -4,10 +4,10 @@ import 'package:freaky_fridge/controllers/product_controller.dart';
 import 'package:freaky_fridge/database/database.dart';
 import 'package:get/get.dart' hide Value;
 
-class ProductWidget extends StatelessWidget {
+class ProductPage extends StatelessWidget {
   final ProductController controller = Get.put(ProductController());
 
-  ProductWidget({super.key, ProductData? product}) {
+  ProductPage({super.key, ProductData? product}) {
     if (product != null) {
       controller.updateProduct(product);
     }

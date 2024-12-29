@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/controllers/nav_controller.dart';
-import 'package:freaky_fridge/widgets/qr_scanner.dart';
+import 'package:freaky_fridge/pages/qr/qr_scanner.dart';
 import 'package:get/get.dart';
 
 class AppEntrypoint extends StatelessWidget {

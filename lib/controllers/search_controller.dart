@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
 
 class SearchController extends GetxController {
-  var search = ''.obs;
-  
-  void searchProduct(String value) {
-    search.value = value;
+  var searchQuery = ''.obs;
+
+  void updateSearchQuery(String query) {
+    searchQuery.value = query;
   }
 }

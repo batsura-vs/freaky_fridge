@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/database/database.dart';
-import 'package:freaky_fridge/widgets/product_record.dart';
+import 'package:freaky_fridge/pages/creation/product_record.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -20,7 +20,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
         return;
       }
       Get.off(
-        () => ProductRecordWidget(
+        () => ProductRecordPage(
           product: ProductRecordData(
             productId: id,
             id: -1,
