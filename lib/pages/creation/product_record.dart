@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
-import 'package:freaky_fridge/database/database.dart';
 import 'package:freaky_fridge/controllers/product_record_controller.dart';
+import 'package:freaky_fridge/database/database.dart';
 import 'package:get/get.dart' hide Value;
 import 'package:intl/intl.dart';
 

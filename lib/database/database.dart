@@ -157,6 +157,29 @@ class ProductDatabase extends _$ProductDatabase {
   Stream<List<ProductTransactionData>> watchAllProductTransactions() =>
       select(productTransaction).watch();
 
+  Future<List<ProductWithTransaction>> getProductTransactionsForPeriod(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    final query = select(product).join([
+      innerJoin(productTransaction,
+          product.id.equalsExp(productTransaction.productId)),
+    ])
+      ..where(productTransaction.transactionDate
+          .isBetweenValues(startDate, endDate));
+
+    final result = await query.get();
+
+    return result
+        .map(
+          (row) => ProductWithTransaction(
+            product: row.readTable(product),
+            transaction: row.readTable(productTransaction),
+          ),
+        )
+        .toList();
+  }
+
   // ProductWithTransaction methods
   Future<List<ProductWithTransaction>> getAllProductWithTransaction() async {
     final query = select(product).join([

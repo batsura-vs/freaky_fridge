@@ -101,7 +101,7 @@ class RecordsPage extends StatelessWidget {
                         )
                         .toList();
                     return ListView.builder(
-                      key: UniqueKey(),
+                      key: ValueKey(searchController.searchQuery.value),
                       itemCount: filteredRecords.length,
                       itemBuilder: (context, index) {
                         return Card(
