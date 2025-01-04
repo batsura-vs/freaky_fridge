@@ -7,8 +7,13 @@ import 'package:freaky_fridge/pages/records.dart';
 import 'package:freaky_fridge/pages/wish_list.dart';
 import 'package:get/get.dart';
 
-void main() {
+import 'package:freaky_fridge/services/expiration_service.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final expirationService = ExpirationService();
+  await expirationService.init();
+  expirationService.checkExpirations();
   runApp(const MyApp());
 }
 
