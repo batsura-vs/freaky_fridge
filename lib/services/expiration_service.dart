@@ -48,8 +48,7 @@ class ExpirationService extends GetxService {
 
     for (final el in records) {
       final difference = el.record.expiration.difference(now);
-      if (difference.inDays <= 7 && difference.inDays >= 0) {
-        print(difference.inDays);
+      if (difference.inDays <= 2 && difference.inDays >= 0) {
         NotificationDetails notificationDetails =
             NotificationDetails(android: androidNotificationDetails);
         await flutterLocalNotificationsPlugin.show(
