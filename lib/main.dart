@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
           WishList(),
           const StatsPage(),
         ],
-        index: 2,
+        index: 1,
       ),
       tag: 'nav',
     );
