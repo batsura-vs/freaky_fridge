@@ -75,17 +75,29 @@ class ProductDatabase extends _$ProductDatabase {
   }
 
   Future<bool> updateProductRecord(ProductRecordCompanion record) async {
-    final updated = await update(productRecord).replace(record);
     final prodRec = await getProductRecordWithProductById(record.id.value);
+    final updated = await update(productRecord).replace(record);
     if (prodRec != null) {
-      await insertProductTransaction(
-        ProductTransactionCompanion(
-          productId: Value(prodRec.record.productId),
-          transactionDate: Value(DateTime.now()),
-          quantity: Value(record.amount.value),
-          type: Value(TransactionType.expense.name),
-        ),
-      );
+      var diff = prodRec.record.amount - record.amount.value;
+      if (diff > 0) {
+        await insertProductTransaction(
+          ProductTransactionCompanion(
+            productId: Value(prodRec.record.productId),
+            transactionDate: Value(DateTime.now()),
+            quantity: Value(diff),
+            type: Value(TransactionType.expense.name),
+          ),
+        );
+      } else {
+        await insertProductTransaction(
+          ProductTransactionCompanion(
+            productId: Value(prodRec.record.productId),
+            transactionDate: Value(DateTime.now()),
+            quantity: Value(-diff),
+            type: Value(TransactionType.replenishment.name),
+          ),
+        );
+      }
     }
     return updated;
   }
@@ -157,27 +169,45 @@ class ProductDatabase extends _$ProductDatabase {
   Stream<List<ProductTransactionData>> watchAllProductTransactions() =>
       select(productTransaction).watch();
 
-  Future<List<ProductWithTransaction>> getProductTransactionsForPeriod(
-    DateTime startDate,
-    DateTime endDate,
-  ) async {
-    final query = select(product).join([
-      innerJoin(productTransaction,
-          product.id.equalsExp(productTransaction.productId)),
+  Future<Map<DateTime, Map<String, dynamic>>> getProductTransactionsForPeriod(
+      DateTime startDate, DateTime endDate) async {
+    final query = select(productTransaction).join([
+      innerJoin(product, product.id.equalsExp(productTransaction.productId))
     ])
       ..where(productTransaction.transactionDate
           .isBetweenValues(startDate, endDate));
 
     final result = await query.get();
 
-    return result
-        .map(
-          (row) => ProductWithTransaction(
-            product: row.readTable(product),
-            transaction: row.readTable(productTransaction),
-          ),
-        )
-        .toList();
+    final Map<DateTime, Map<String, Map<String, dynamic>>> groupedTransactions =
+        {};
+
+    for (final row in result) {
+      final productData = row.readTable(product);
+      final transactionData = row.readTable(productTransaction);
+
+      final transactionDate = transactionData.transactionDate;
+      final productName = productData.name;
+      final transactionType = transactionData.type;
+      final quantity = transactionData.quantity;
+
+      if (!groupedTransactions.containsKey(transactionDate)) {
+        groupedTransactions[transactionDate] = {};
+      }
+
+      if (!groupedTransactions[transactionDate]!.containsKey(productName)) {
+        groupedTransactions[transactionDate]![productName] = {
+          'replenishment': 0,
+          'deletion': 0,
+          'expense': 0,
+        };
+      }
+
+      groupedTransactions[transactionDate]![productName]![transactionType] =
+          quantity;
+    }
+
+    return groupedTransactions;
   }
 
   // ProductWithTransaction methods

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/controllers/nav_controller.dart';
+import 'package:freaky_fridge/pages/stats.dart';
 import 'package:freaky_fridge/entrypoint/entrypoit.dart';
 import 'package:freaky_fridge/pages/products.dart';
 import 'package:freaky_fridge/pages/records.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
           RecordsPage(),
           ProductsPage(),
           WishList(),
+          const StatsPage(),
         ],
         index: 2,
       ),

@@ -50,6 +50,12 @@ class AppEntrypoint extends StatelessWidget {
                 ),
                 onPressed: () => controller.navigateTo(2),
               ),
+              IconButton(
+                onPressed: () => controller.navigateTo(3),
+                icon: const Icon(
+                  Icons.add_chart,
+                ),
+              ),
             ],
           ),
         ),
