@@ -23,41 +23,36 @@ class AppEntrypoint extends StatelessWidget {
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar: Obx(
-        () => BottomAppBar(
-          shape: const CircularNotchedRectangle(),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.list,
-                  size: controller.currentIndex.value == 0 ? 30.0 : 24.0,
-                ),
-                onPressed: () => controller.navigateTo(0),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            IconButton(
+              icon: const Icon(
+                Icons.list_alt,
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.search,
-                  size: controller.currentIndex.value == 1 ? 30.0 : 24.0,
-                ),
-                onPressed: () => controller.navigateTo(1),
+              onPressed: () => controller.navigateTo(0),
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.format_list_bulleted,
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.person,
-                  size: controller.currentIndex.value == 2 ? 30.0 : 24.0,
-                ),
-                onPressed: () => controller.navigateTo(2),
+              onPressed: () => controller.navigateTo(1),
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.shopping_cart_outlined,
               ),
-              IconButton(
-                onPressed: () => controller.navigateTo(3),
-                icon: const Icon(
-                  Icons.add_chart,
-                ),
+              onPressed: () => controller.navigateTo(2),
+            ),
+            IconButton(
+              onPressed: () => controller.navigateTo(3),
+              icon: const Icon(
+                Icons.add_chart,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

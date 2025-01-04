@@ -118,7 +118,7 @@ class ProductsPage extends StatelessWidget {
                         ),
                       );
                     })
-                  : const Center(child: Text("No products"))
+                  : const Center(child: Text("No products, yet. Please add some."))
               : const Center(child: CircularProgressIndicator()),
         ),
       ),
