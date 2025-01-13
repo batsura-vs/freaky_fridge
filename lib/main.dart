@@ -3,7 +3,6 @@ import 'package:freaky_fridge/controllers/nav_controller.dart';
 import 'package:freaky_fridge/pages/stats.dart';
 import 'package:freaky_fridge/entrypoint/entrypoit.dart';
 import 'package:freaky_fridge/pages/products.dart';
-import 'package:freaky_fridge/pages/records.dart';
 import 'package:freaky_fridge/pages/wish_list.dart';
 import 'package:get/get.dart';
 
@@ -25,12 +24,11 @@ class MyApp extends StatelessWidget {
     Get.put(
       NavigationController(
         pages: [
-          RecordsPage(),
           ProductsPage(),
           WishList(),
           const StatsPage(),
         ],
-        index: 1,
+        index: 0,
       ),
       tag: 'nav',
     );

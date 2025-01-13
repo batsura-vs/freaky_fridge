@@ -2,16 +2,14 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:freaky_fridge/database/models/category.dart';
 import 'package:freaky_fridge/database/models/product.dart';
-import 'package:freaky_fridge/database/models/product_record.dart';
 import 'package:freaky_fridge/database/models/product_transaction.dart';
-import 'package:freaky_fridge/database/dto/product_record_with_product.dart';
 import 'package:freaky_fridge/database/dto/product_with_transaction.dart';
 import 'package:freaky_fridge/database/models/transaction_type.dart';
 
 part 'database.g.dart';
 
 @DriftDatabase(
-  tables: [Product, Category, ProductRecord, ProductTransaction],
+  tables: [Product, Category, ProductTransaction],
 )
 class ProductDatabase extends _$ProductDatabase {
   static final ProductDatabase _instance = ProductDatabase._internal();
@@ -30,132 +28,54 @@ class ProductDatabase extends _$ProductDatabase {
   // Product methods
   Future<List<ProductData>> get allProducts => select(product).get();
   Stream<List<ProductData>> watchAllProducts() => select(product).watch();
-  Future<int> insertProduct(ProductCompanion prod) =>
-      into(product).insert(prod);
-  Future<int> deleteProduct(int id) =>
-      (delete(product)..where((tbl) => tbl.id.equals(id))).go();
-  Future<bool> updateProduct(ProductCompanion prod) =>
-      update(product).replace(prod);
-  Future<void> deleteTable() => delete(product).go();
-
-  // ProductRecord methods
-  Future<List<ProductRecordData>> get allProductRecords =>
-      select(productRecord).get();
-  Future<int> insertProductRecord(ProductRecordCompanion record) async {
-    final id = await into(productRecord).insert(record);
-    final prodRec = await getProductRecordWithProductById(id);
-    if (prodRec != null) {
-      await insertProductTransaction(
-        ProductTransactionCompanion(
-          productId: Value(prodRec.record.productId),
-          transactionDate: Value(DateTime.now()),
-          quantity: Value(record.amount.value),
-          type: Value(TransactionType.replenishment.name),
-        ),
-      );
-    }
+  Future<int> insertProduct(ProductCompanion prod) async {
+    final id = await into(product).insert(prod);
+    await insertProductTransaction(ProductTransactionCompanion(
+      productId: Value(id),
+      transactionDate: Value(DateTime.now()),
+      type: const Value(TransactionType.replenishment),
+      quantity: const Value(1),
+    ));
     return id;
   }
 
-  Future<int> deleteProductRecord(int id) async {
-    final prodRec = await getProductRecordWithProductById(id);
-    final deleted =
-        await (delete(productRecord)..where((tbl) => tbl.id.equals(id))).go();
-    if (prodRec != null) {
-      await insertProductTransaction(
-        ProductTransactionCompanion(
-          productId: Value(prodRec.record.productId),
-          transactionDate: Value(DateTime.now()),
-          quantity: Value(prodRec.record.amount),
-          type: Value(TransactionType.deletion.name),
-        ),
-      );
-    }
-    return deleted;
+  Future<int> deleteProduct(int id) async {
+    await insertProductTransaction(ProductTransactionCompanion(
+      productId: Value(id),
+      transactionDate: Value(DateTime.now()),
+      type: const Value(TransactionType.deletion),
+      quantity: const Value(1),
+    ));
+    return (delete(product)..where((tbl) => tbl.id.equals(id))).go();
   }
 
-  Future<bool> updateProductRecord(ProductRecordCompanion record) async {
-    final prodRec = await getProductRecordWithProductById(record.id.value);
-    final updated = await update(productRecord).replace(record);
-    if (prodRec != null) {
-      var diff = prodRec.record.amount - record.amount.value;
-      if (diff > 0) {
-        await insertProductTransaction(
-          ProductTransactionCompanion(
-            productId: Value(prodRec.record.productId),
-            transactionDate: Value(DateTime.now()),
-            quantity: Value(diff),
-            type: Value(TransactionType.expense.name),
-          ),
-        );
-      } else {
-        await insertProductTransaction(
-          ProductTransactionCompanion(
-            productId: Value(prodRec.record.productId),
-            transactionDate: Value(DateTime.now()),
-            quantity: Value(-diff),
-            type: Value(TransactionType.replenishment.name),
-          ),
-        );
+  Future<bool> updateProduct(ProductCompanion prod) async {
+    final oldProduct = await (select(product)
+          ..where((tbl) => tbl.id.equals(prod.id.value)))
+        .getSingle();
+    final updated = await update(product).replace(prod);
+    if (prod.massVolume.present) {
+      final quantityDiff = prod.massVolume.value - oldProduct.massVolume;
+      if (quantityDiff > 0) {
+        await insertProductTransaction(ProductTransactionCompanion(
+          productId: Value(prod.id.value),
+          transactionDate: Value(DateTime.now()),
+          type: const Value(TransactionType.replenishment),
+          quantity: Value(quantityDiff.toInt()),
+        ));
+      } else if (quantityDiff < 0) {
+        await insertProductTransaction(ProductTransactionCompanion(
+          productId: Value(prod.id.value),
+          transactionDate: Value(DateTime.now()),
+          type: const Value(TransactionType.expense),
+          quantity: Value(-quantityDiff.toInt()),
+        ));
       }
     }
     return updated;
   }
 
-  Stream<List<ProductRecordWithProduct>> watchAllProductRecordWithProduct() {
-    final query = select(productRecord).join([
-      innerJoin(product, product.id.equalsExp(productRecord.productId)),
-    ]);
-
-    return query.watch().map(
-          (rows) => rows
-              .map(
-                (row) => ProductRecordWithProduct(
-                  record: row.readTable(productRecord),
-                  product: row.readTable(product),
-                ),
-              )
-              .toList(),
-        );
-  }
-
-  Future<List<ProductRecordWithProduct>>
-      getAllProductRecordWithProduct() async {
-    final query = select(productRecord).join([
-      innerJoin(product, product.id.equalsExp(productRecord.productId)),
-    ]);
-
-    final result = await query.get();
-
-    return result
-        .map(
-          (row) => ProductRecordWithProduct(
-            record: row.readTable(productRecord),
-            product: row.readTable(product),
-          ),
-        )
-        .toList();
-  }
-
-  Future<ProductRecordWithProduct?> getProductRecordWithProductById(
-    int id,
-  ) async {
-    final query = select(productRecord).join([
-      innerJoin(product, product.id.equalsExp(productRecord.productId)),
-    ])
-      ..where(productRecord.id.equals(id));
-
-    final result = await query.getSingleOrNull();
-
-    if (result == null) {
-      return null;
-    }
-
-    return ProductRecordWithProduct(
-      record: result.readTable(productRecord),
-      product: result.readTable(product),
-    );
-  }
+  Future<void> deleteTable() => delete(product).go();
 
   // ProductTransaction methods
   Future<List<ProductTransactionData>> get allProductTransactions =>
@@ -197,14 +117,14 @@ class ProductDatabase extends _$ProductDatabase {
 
       if (!groupedTransactions[transactionDate]!.containsKey(productName)) {
         groupedTransactions[transactionDate]![productName] = {
-          'replenishment': 0,
-          'deletion': 0,
-          'expense': 0,
+          TransactionType.replenishment.name: 0,
+          TransactionType.deletion.name: 0,
+          TransactionType.expense.name: 0,
         };
       }
 
-      groupedTransactions[transactionDate]![productName]![transactionType] =
-          quantity;
+      groupedTransactions[transactionDate]![productName]![
+          transactionType.name] = quantity;
     }
 
     return groupedTransactions;

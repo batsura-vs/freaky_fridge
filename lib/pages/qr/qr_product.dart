@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/database/database.dart';
 import 'package:get/get.dart';
@@ -13,8 +14,19 @@ class QrProductWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final productData = {
+      'name': product.name,
+      'productType': product.productType,
+      'manufactureDate': product.manufactureDate.toIso8601String(),
+      'expirationDate': product.expirationDate.toIso8601String(),
+      'massVolume': product.massVolume,
+      'unit': product.unit,
+      'nutritionFacts': product.nutritionFacts,
+      'measurementType': product.measurementType,
+    };
+    final qrData = jsonEncode(productData);
     final painter = QrPainter(
-      data: product.id.toString(),
+      data: qrData,
       version: QrVersions.auto,
     );
     return Scaffold(

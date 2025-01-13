@@ -4,6 +4,7 @@ import 'package:freaky_fridge/pages/creation/product.dart';
 import 'package:freaky_fridge/pages/qr/qr_product.dart';
 import 'package:get/get.dart';
 import 'package:freaky_fridge/controllers/search_controller.dart';
+import 'package:intl/intl.dart';
 
 class ProductsPage extends StatelessWidget {
   ProductsPage({super.key});
@@ -97,15 +98,52 @@ class ProductsPage extends StatelessWidget {
                         itemBuilder: (context, index) => Card(
                           child: ListTile(
                             title: Text(filteredProducts[index].name),
-                            subtitle: filteredProducts[index].description ==
-                                    null
-                                ? null
-                                : Text(filteredProducts[index].description!),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    'Type: ${filteredProducts[index].productType}'),
+                                Text(
+                                  'Manufactured: ${DateFormat('yyyy-MM-dd').format(filteredProducts[index].manufactureDate)}',
+                                ),
+                                Text(
+                                  'Expires: ${DateFormat('yyyy-MM-dd').format(filteredProducts[index].expirationDate)}',
+                                ),
+                                Text(
+                                  'Mass/Volume: ${filteredProducts[index].massVolume} ${filteredProducts[index].unit}',
+                                ),
+                              ],
+                            ),
                             onTap: () => Get.to(
                               () => ProductPage(
                                 product: filteredProducts[index],
                               ),
                             ),
+                            onLongPress: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text(filteredProducts[index].name),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          'Nutrition Facts: ${filteredProducts[index].nutritionFacts}'),
+                                      Text(
+                                          'Measurement Type: ${filteredProducts[index].measurementType}'),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Close'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                             trailing: IconButton(
                               icon: const Icon(Icons.qr_code),
                               onPressed: () => Get.to(
@@ -118,7 +156,8 @@ class ProductsPage extends StatelessWidget {
                         ),
                       );
                     })
-                  : const Center(child: Text("No products, yet. Please add some."))
+                  : const Center(
+                      child: Text("No products, yet. Please add some."))
               : const Center(child: CircularProgressIndicator()),
         ),
       ),

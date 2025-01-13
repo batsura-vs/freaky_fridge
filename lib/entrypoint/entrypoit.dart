@@ -30,24 +30,18 @@ class AppEntrypoint extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(
-                Icons.list_alt,
+                Icons.format_list_bulleted,
               ),
               onPressed: () => controller.navigateTo(0),
             ),
             IconButton(
               icon: const Icon(
-                Icons.format_list_bulleted,
+                Icons.shopping_cart_outlined,
               ),
               onPressed: () => controller.navigateTo(1),
             ),
             IconButton(
-              icon: const Icon(
-                Icons.shopping_cart_outlined,
-              ),
               onPressed: () => controller.navigateTo(2),
-            ),
-            IconButton(
-              onPressed: () => controller.navigateTo(3),
               icon: const Icon(
                 Icons.add_chart,
               ),

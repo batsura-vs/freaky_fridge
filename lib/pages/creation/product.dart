@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:freaky_fridge/controllers/product_controller.dart';
 import 'package:freaky_fridge/database/database.dart';
 import 'package:get/get.dart' hide Value;
+import 'package:intl/intl.dart';
 
 class ProductPage extends StatelessWidget {
   final ProductController controller = Get.put(ProductController());
@@ -79,6 +80,147 @@ class ProductPage extends StatelessWidget {
                       ),
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(
+                      () => TextFormField(
+                        initialValue: controller.productType.value,
+                        decoration: InputDecoration(
+                          labelText: 'Product Type',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        onChanged: (value) =>
+                            controller.updateProductType(value),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(
+                      () => TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Manufacture Date',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        readOnly: true,
+                        onTap: () async {
+                          final DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: controller.manufactureDate.value,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+                          if (picked != null) {
+                            controller.updateManufactureDate(picked);
+                          }
+                        },
+                        controller: TextEditingController(
+                          text: DateFormat('yyyy-MM-dd')
+                              .format(controller.manufactureDate.value),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(
+                      () => TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Expiration Date',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        readOnly: true,
+                        onTap: () async {
+                          final DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: controller.expirationDate.value,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+                          if (picked != null) {
+                            controller.updateExpirationDate(picked);
+                          }
+                        },
+                        controller: TextEditingController(
+                          text: DateFormat('yyyy-MM-dd')
+                              .format(controller.expirationDate.value),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(
+                      () => TextFormField(
+                        initialValue: controller.massVolume.value.toString(),
+                        decoration: InputDecoration(
+                          labelText: 'Mass/Volume',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) => controller.updateMassVolume(
+                          double.tryParse(value) ?? 0.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(
+                      () => TextFormField(
+                        initialValue: controller.unit.value,
+                        decoration: InputDecoration(
+                          labelText: 'Unit',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        onChanged: (value) => controller.updateUnit(value),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(
+                      () => TextFormField(
+                        initialValue: controller.nutritionFacts.value,
+                        minLines: 3,
+                        maxLines: 5,
+                        decoration: InputDecoration(
+                          labelText: 'Nutrition Facts',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        onChanged: (value) =>
+                            controller.updateNutritionFacts(value),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(
+                      () => TextFormField(
+                        initialValue: controller.measurementType.value,
+                        decoration: InputDecoration(
+                          labelText: 'Measurement Type',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        onChanged: (value) =>
+                            controller.updateMeasurementType(value),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -93,6 +235,13 @@ class ProductPage extends StatelessWidget {
               ProductCompanion.insert(
                 name: controller.name.value,
                 description: Value(controller.description.value),
+                productType: controller.productType.value,
+                manufactureDate: controller.manufactureDate.value,
+                expirationDate: controller.expirationDate.value,
+                massVolume: controller.massVolume.value,
+                unit: controller.unit.value,
+                nutritionFacts: controller.nutritionFacts.value,
+                measurementType: controller.measurementType.value,
               ),
             );
           } else {
@@ -100,6 +249,13 @@ class ProductPage extends StatelessWidget {
               id: Value(controller.id.value),
               name: Value(controller.name.value),
               description: Value(controller.description.value),
+              productType: Value(controller.productType.value),
+              manufactureDate: Value(controller.manufactureDate.value),
+              expirationDate: Value(controller.expirationDate.value),
+              massVolume: Value(controller.massVolume.value),
+              unit: Value(controller.unit.value),
+              nutritionFacts: Value(controller.nutritionFacts.value),
+              measurementType: Value(controller.measurementType.value),
             ));
           }
           Get.back();

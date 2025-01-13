@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/database/database.dart';
-import 'package:freaky_fridge/pages/creation/product_record.dart';
+import 'package:freaky_fridge/pages/creation/product.dart';
+import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -15,20 +16,28 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
   void _handleBarcode(BarcodeCapture barcodes) {
     var code = barcodes.barcodes.firstOrNull;
     if (code != null && code.displayValue != null) {
-      int? id = int.tryParse(code.displayValue!);
-      if (id == null) {
+      try {
+        final Map<String, dynamic> productData = jsonDecode(code.displayValue!);
+        final int? productId = productData['productId'];
+        Get.off(
+          () => ProductPage(
+            product: ProductData(
+              id: productId ?? -1,
+              name: productData['name'],
+              productType: productData['productType'],
+              manufactureDate: DateTime.parse(productData['manufactureDate']),
+              expirationDate: DateTime.parse(productData['expirationDate']),
+              massVolume: productData['massVolume'],
+              unit: productData['unit'],
+              nutritionFacts: productData['nutritionFacts'],
+              measurementType: productData['measurementType'],
+            ),
+          ),
+        );
+      } catch (e) {
+        debugPrint('Failed to decode JSON: $e');
         return;
       }
-      Get.off(
-        () => ProductRecordPage(
-          product: ProductRecordData(
-            productId: id,
-            id: -1,
-            amount: 1,
-            expiration: DateTime.now(),
-          ),
-        ),
-      );
     }
   }
 

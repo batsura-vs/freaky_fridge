@@ -43,18 +43,18 @@ class ExpirationService extends GetxService {
   }
 
   Future<void> checkExpirations() async {
-    final records = await database.getAllProductRecordWithProduct();
+    final products = await database.allProducts;
     final now = DateTime.now();
 
-    for (final el in records) {
-      final difference = el.record.expiration.difference(now);
+    for (final product in products) {
+      final difference = product.expirationDate.difference(now);
       if (difference.inDays <= 2 && difference.inDays >= 0) {
         NotificationDetails notificationDetails =
             NotificationDetails(android: androidNotificationDetails);
         await flutterLocalNotificationsPlugin.show(
-          el.product.id,
+          product.id,
           'Срок годности истекает!',
-          'Срок годности "${el.product.name}" истекает через ${difference.inDays}д!',
+          'Срок годности "${product.name}" истекает через ${difference.inDays}д!',
           notificationDetails,
         );
       }
