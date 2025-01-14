@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/database/database.dart';
 import 'package:get/get.dart';
@@ -18,21 +19,24 @@ class QrProductWidget extends StatelessWidget {
       body: FutureBuilder(
         future: ProductDatabase.instance.getCategoryById(product.productType),
         builder: (context, snapshot) {
-          if (snapshot.hasError) return Center(child: Text(snapshot.error.toString()));
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
           final category = snapshot.data!;
-          final productData = {
-            'name': product.name,
-            'productType': category.name,
-            'manufactureDate': product.manufactureDate.toIso8601String(),
-            'expirationDate': product.expirationDate.toIso8601String(),
-            'massVolume': product.massVolume,
-            'unit': product.unit.name,
-            'nutritionFacts': product.nutritionFacts,
-          };
-          final qrData = jsonEncode(productData);
+          final productData = [
+            product.name,
+            category.name,
+            product.manufactureDate.toIso8601String(),
+            product.expirationDate.toIso8601String(),
+            product.massVolume,
+            product.unit.name,
+            product.nutritionFacts,
+          ];
+          final qrData =
+              base64Encode(gzip.encode(utf8.encode(jsonEncode(productData))));
           final painter = QrPainter(
             data: qrData,
             version: QrVersions.auto,

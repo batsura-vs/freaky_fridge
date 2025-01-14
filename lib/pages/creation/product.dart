@@ -4,7 +4,6 @@ import 'package:freaky_fridge/controllers/product_controller.dart';
 import 'package:freaky_fridge/database/database.dart';
 import 'package:freaky_fridge/database/models/product.dart';
 import 'package:freaky_fridge/pages/category_list.dart';
-import 'package:freaky_fridge/pages/creation/category.dart';
 import 'package:get/get.dart' hide Value;
 import 'package:intl/intl.dart';
 

@@ -25,20 +25,6 @@ class ProductDatabase extends _$ProductDatabase {
 
   static ProductDatabase get instance => _instance;
 
-  Future<void> _ensureDefaultCategory() async {
-    final categories = await select(category).get();
-    if (categories.isEmpty) {
-      await into(category).insert(
-        CategoryCompanion.insert(name: 'Default'),
-      );
-    }
-  }
-
-  @override
-  Future<void> onOpen(OpeningDetails details) async {
-    await _ensureDefaultCategory();
-  }
-
   Future<int> insertCategory(CategoryCompanion category) =>
       into(this.category).insert(category);
 
@@ -48,6 +34,11 @@ class ProductDatabase extends _$ProductDatabase {
     return await (select(category)..where((tbl) => tbl.id.equals(id)))
             .getSingleOrNull() ??
         const CategoryData(id: -1, name: "Default");
+  }
+
+  Future<CategoryData?> getCategoryByName(String name) async {
+    return await (select(category)..where((tbl) => tbl.name.equals(name)))
+        .getSingleOrNull();
   }
 
   // Product methods
