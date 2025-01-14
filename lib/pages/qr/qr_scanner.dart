@@ -13,12 +13,22 @@ class BarcodeScannerSimple extends StatefulWidget {
 }
 
 class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
-  void _handleBarcode(BarcodeCapture barcodes) {
+  void _handleBarcode(BarcodeCapture barcodes) async {
     var code = barcodes.barcodes.firstOrNull;
     if (code != null && code.displayValue != null) {
       try {
         final Map<String, dynamic> productData = jsonDecode(code.displayValue!);
         final int? productId = productData['productId'];
+        if (await ProductDatabase.instance.getCategoryById(
+              productData['productType'] ?? "Default",
+            ) ==
+            null) {
+          await ProductDatabase.instance.insertCategory(
+            CategoryCompanion.insert(
+              name: productData['productType'] ?? "Default",
+            ),
+          );
+        }
         Get.off(
           () => ProductPage(
             product: ProductData(
@@ -30,7 +40,6 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
               massVolume: productData['massVolume'],
               unit: productData['unit'],
               nutritionFacts: productData['nutritionFacts'],
-              measurementType: productData['measurementType'],
             ),
           ),
         );

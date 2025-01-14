@@ -102,8 +102,6 @@ class ProductsPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                    'Type: ${filteredProducts[index].productType}'),
-                                Text(
                                   'Manufactured: ${DateFormat('yyyy-MM-dd').format(filteredProducts[index].manufactureDate)}',
                                 ),
                                 Text(
@@ -131,8 +129,6 @@ class ProductsPage extends StatelessWidget {
                                     children: [
                                       Text(
                                           'Nutrition Facts: ${filteredProducts[index].nutritionFacts}'),
-                                      Text(
-                                          'Measurement Type: ${filteredProducts[index].measurementType}'),
                                     ],
                                   ),
                                   actions: [

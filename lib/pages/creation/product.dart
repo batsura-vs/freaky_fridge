@@ -2,6 +2,9 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/controllers/product_controller.dart';
 import 'package:freaky_fridge/database/database.dart';
+import 'package:freaky_fridge/database/models/product.dart';
+import 'package:freaky_fridge/pages/category_list.dart';
+import 'package:freaky_fridge/pages/creation/category.dart';
 import 'package:get/get.dart' hide Value;
 import 'package:intl/intl.dart';
 
@@ -82,19 +85,48 @@ class ProductPage extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Obx(
-                      () => TextFormField(
-                        initialValue: controller.productType.value,
-                        decoration: InputDecoration(
-                          labelText: 'Product Type',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        onChanged: (value) =>
-                            controller.updateProductType(value),
-                      ),
-                    ),
+                    child: StreamBuilder<List<CategoryData>>(
+                        stream: ProductDatabase.instance
+                            .select(ProductDatabase.instance.category)
+                            .watch(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const CircularProgressIndicator();
+                          }
+                          final categories = snapshot.data!;
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField<int>(
+                                  value: controller.category,
+                                  decoration: InputDecoration(
+                                    labelText: 'Category',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                  ),
+                                  items: categories.map((category) {
+                                    return DropdownMenuItem<int>(
+                                      value: category.id,
+                                      child: Text(category.name),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      controller.updateCategory(value);
+                                    }
+                                  },
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () {
+                                  Get.to(() => CategoryListScreen());
+                                },
+                              ),
+                            ],
+                          );
+                        }),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -175,15 +207,25 @@ class ProductPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Obx(
-                      () => TextFormField(
-                        initialValue: controller.unit.value,
+                      () => DropdownButtonFormField<Unit>(
+                        value: controller.massVolumeUnit,
                         decoration: InputDecoration(
-                          labelText: 'Unit',
+                          labelText: 'Unit (Mass/Volume)',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
-                        onChanged: (value) => controller.updateUnit(value),
+                        items: Unit.values.map((Unit unit) {
+                          return DropdownMenuItem<Unit>(
+                            value: unit,
+                            child: Text(unit.toString().split('.').last),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            controller.unit = value;
+                          }
+                        },
                       ),
                     ),
                   ),
@@ -205,22 +247,6 @@ class ProductPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Obx(
-                      () => TextFormField(
-                        initialValue: controller.measurementType.value,
-                        decoration: InputDecoration(
-                          labelText: 'Measurement Type',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        onChanged: (value) =>
-                            controller.updateMeasurementType(value),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -235,13 +261,12 @@ class ProductPage extends StatelessWidget {
               ProductCompanion.insert(
                 name: controller.name.value,
                 description: Value(controller.description.value),
-                productType: controller.productType.value,
+                productType: controller.category,
                 manufactureDate: controller.manufactureDate.value,
                 expirationDate: controller.expirationDate.value,
                 massVolume: controller.massVolume.value,
-                unit: controller.unit.value,
+                unit: controller.unit,
                 nutritionFacts: controller.nutritionFacts.value,
-                measurementType: controller.measurementType.value,
               ),
             );
           } else {
@@ -249,13 +274,12 @@ class ProductPage extends StatelessWidget {
               id: Value(controller.id.value),
               name: Value(controller.name.value),
               description: Value(controller.description.value),
-              productType: Value(controller.productType.value),
+              productType: Value(controller.category),
               manufactureDate: Value(controller.manufactureDate.value),
               expirationDate: Value(controller.expirationDate.value),
               massVolume: Value(controller.massVolume.value),
-              unit: Value(controller.unit.value),
+              unit: Value(controller.unit),
               nutritionFacts: Value(controller.nutritionFacts.value),
-              measurementType: Value(controller.measurementType.value),
             ));
           }
           Get.back();

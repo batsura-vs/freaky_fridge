@@ -3,533 +3,6 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $ProductTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _descriptionMeta =
-      const VerificationMeta('description');
-  @override
-  late final GeneratedColumn<String> description = GeneratedColumn<String>(
-      'description', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _productTypeMeta =
-      const VerificationMeta('productType');
-  @override
-  late final GeneratedColumn<String> productType = GeneratedColumn<String>(
-      'product_type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _manufactureDateMeta =
-      const VerificationMeta('manufactureDate');
-  @override
-  late final GeneratedColumn<DateTime> manufactureDate =
-      GeneratedColumn<DateTime>('manufacture_date', aliasedName, false,
-          type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _expirationDateMeta =
-      const VerificationMeta('expirationDate');
-  @override
-  late final GeneratedColumn<DateTime> expirationDate =
-      GeneratedColumn<DateTime>('expiration_date', aliasedName, false,
-          type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _massVolumeMeta =
-      const VerificationMeta('massVolume');
-  @override
-  late final GeneratedColumn<double> massVolume = GeneratedColumn<double>(
-      'mass_volume', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
-  @override
-  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
-      'unit', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _nutritionFactsMeta =
-      const VerificationMeta('nutritionFacts');
-  @override
-  late final GeneratedColumn<String> nutritionFacts = GeneratedColumn<String>(
-      'nutrition_facts', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _measurementTypeMeta =
-      const VerificationMeta('measurementType');
-  @override
-  late final GeneratedColumn<String> measurementType = GeneratedColumn<String>(
-      'measurement_type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        name,
-        description,
-        productType,
-        manufactureDate,
-        expirationDate,
-        massVolume,
-        unit,
-        nutritionFacts,
-        measurementType
-      ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'product';
-  @override
-  VerificationContext validateIntegrity(Insertable<ProductData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('description')) {
-      context.handle(
-          _descriptionMeta,
-          description.isAcceptableOrUnknown(
-              data['description']!, _descriptionMeta));
-    }
-    if (data.containsKey('product_type')) {
-      context.handle(
-          _productTypeMeta,
-          productType.isAcceptableOrUnknown(
-              data['product_type']!, _productTypeMeta));
-    } else if (isInserting) {
-      context.missing(_productTypeMeta);
-    }
-    if (data.containsKey('manufacture_date')) {
-      context.handle(
-          _manufactureDateMeta,
-          manufactureDate.isAcceptableOrUnknown(
-              data['manufacture_date']!, _manufactureDateMeta));
-    } else if (isInserting) {
-      context.missing(_manufactureDateMeta);
-    }
-    if (data.containsKey('expiration_date')) {
-      context.handle(
-          _expirationDateMeta,
-          expirationDate.isAcceptableOrUnknown(
-              data['expiration_date']!, _expirationDateMeta));
-    } else if (isInserting) {
-      context.missing(_expirationDateMeta);
-    }
-    if (data.containsKey('mass_volume')) {
-      context.handle(
-          _massVolumeMeta,
-          massVolume.isAcceptableOrUnknown(
-              data['mass_volume']!, _massVolumeMeta));
-    } else if (isInserting) {
-      context.missing(_massVolumeMeta);
-    }
-    if (data.containsKey('unit')) {
-      context.handle(
-          _unitMeta, unit.isAcceptableOrUnknown(data['unit']!, _unitMeta));
-    } else if (isInserting) {
-      context.missing(_unitMeta);
-    }
-    if (data.containsKey('nutrition_facts')) {
-      context.handle(
-          _nutritionFactsMeta,
-          nutritionFacts.isAcceptableOrUnknown(
-              data['nutrition_facts']!, _nutritionFactsMeta));
-    } else if (isInserting) {
-      context.missing(_nutritionFactsMeta);
-    }
-    if (data.containsKey('measurement_type')) {
-      context.handle(
-          _measurementTypeMeta,
-          measurementType.isAcceptableOrUnknown(
-              data['measurement_type']!, _measurementTypeMeta));
-    } else if (isInserting) {
-      context.missing(_measurementTypeMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  ProductData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ProductData(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      name: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      description: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}description']),
-      productType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}product_type'])!,
-      manufactureDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}manufacture_date'])!,
-      expirationDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}expiration_date'])!,
-      massVolume: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}mass_volume'])!,
-      unit: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}unit'])!,
-      nutritionFacts: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}nutrition_facts'])!,
-      measurementType: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}measurement_type'])!,
-    );
-  }
-
-  @override
-  $ProductTable createAlias(String alias) {
-    return $ProductTable(attachedDatabase, alias);
-  }
-}
-
-class ProductData extends DataClass implements Insertable<ProductData> {
-  final int id;
-  final String name;
-  final String? description;
-  final String productType;
-  final DateTime manufactureDate;
-  final DateTime expirationDate;
-  final double massVolume;
-  final String unit;
-  final String nutritionFacts;
-  final String measurementType;
-  const ProductData(
-      {required this.id,
-      required this.name,
-      this.description,
-      required this.productType,
-      required this.manufactureDate,
-      required this.expirationDate,
-      required this.massVolume,
-      required this.unit,
-      required this.nutritionFacts,
-      required this.measurementType});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['name'] = Variable<String>(name);
-    if (!nullToAbsent || description != null) {
-      map['description'] = Variable<String>(description);
-    }
-    map['product_type'] = Variable<String>(productType);
-    map['manufacture_date'] = Variable<DateTime>(manufactureDate);
-    map['expiration_date'] = Variable<DateTime>(expirationDate);
-    map['mass_volume'] = Variable<double>(massVolume);
-    map['unit'] = Variable<String>(unit);
-    map['nutrition_facts'] = Variable<String>(nutritionFacts);
-    map['measurement_type'] = Variable<String>(measurementType);
-    return map;
-  }
-
-  ProductCompanion toCompanion(bool nullToAbsent) {
-    return ProductCompanion(
-      id: Value(id),
-      name: Value(name),
-      description: description == null && nullToAbsent
-          ? const Value.absent()
-          : Value(description),
-      productType: Value(productType),
-      manufactureDate: Value(manufactureDate),
-      expirationDate: Value(expirationDate),
-      massVolume: Value(massVolume),
-      unit: Value(unit),
-      nutritionFacts: Value(nutritionFacts),
-      measurementType: Value(measurementType),
-    );
-  }
-
-  factory ProductData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ProductData(
-      id: serializer.fromJson<int>(json['id']),
-      name: serializer.fromJson<String>(json['name']),
-      description: serializer.fromJson<String?>(json['description']),
-      productType: serializer.fromJson<String>(json['productType']),
-      manufactureDate: serializer.fromJson<DateTime>(json['manufactureDate']),
-      expirationDate: serializer.fromJson<DateTime>(json['expirationDate']),
-      massVolume: serializer.fromJson<double>(json['massVolume']),
-      unit: serializer.fromJson<String>(json['unit']),
-      nutritionFacts: serializer.fromJson<String>(json['nutritionFacts']),
-      measurementType: serializer.fromJson<String>(json['measurementType']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'name': serializer.toJson<String>(name),
-      'description': serializer.toJson<String?>(description),
-      'productType': serializer.toJson<String>(productType),
-      'manufactureDate': serializer.toJson<DateTime>(manufactureDate),
-      'expirationDate': serializer.toJson<DateTime>(expirationDate),
-      'massVolume': serializer.toJson<double>(massVolume),
-      'unit': serializer.toJson<String>(unit),
-      'nutritionFacts': serializer.toJson<String>(nutritionFacts),
-      'measurementType': serializer.toJson<String>(measurementType),
-    };
-  }
-
-  ProductData copyWith(
-          {int? id,
-          String? name,
-          Value<String?> description = const Value.absent(),
-          String? productType,
-          DateTime? manufactureDate,
-          DateTime? expirationDate,
-          double? massVolume,
-          String? unit,
-          String? nutritionFacts,
-          String? measurementType}) =>
-      ProductData(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        description: description.present ? description.value : this.description,
-        productType: productType ?? this.productType,
-        manufactureDate: manufactureDate ?? this.manufactureDate,
-        expirationDate: expirationDate ?? this.expirationDate,
-        massVolume: massVolume ?? this.massVolume,
-        unit: unit ?? this.unit,
-        nutritionFacts: nutritionFacts ?? this.nutritionFacts,
-        measurementType: measurementType ?? this.measurementType,
-      );
-  ProductData copyWithCompanion(ProductCompanion data) {
-    return ProductData(
-      id: data.id.present ? data.id.value : this.id,
-      name: data.name.present ? data.name.value : this.name,
-      description:
-          data.description.present ? data.description.value : this.description,
-      productType:
-          data.productType.present ? data.productType.value : this.productType,
-      manufactureDate: data.manufactureDate.present
-          ? data.manufactureDate.value
-          : this.manufactureDate,
-      expirationDate: data.expirationDate.present
-          ? data.expirationDate.value
-          : this.expirationDate,
-      massVolume:
-          data.massVolume.present ? data.massVolume.value : this.massVolume,
-      unit: data.unit.present ? data.unit.value : this.unit,
-      nutritionFacts: data.nutritionFacts.present
-          ? data.nutritionFacts.value
-          : this.nutritionFacts,
-      measurementType: data.measurementType.present
-          ? data.measurementType.value
-          : this.measurementType,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ProductData(')
-          ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('description: $description, ')
-          ..write('productType: $productType, ')
-          ..write('manufactureDate: $manufactureDate, ')
-          ..write('expirationDate: $expirationDate, ')
-          ..write('massVolume: $massVolume, ')
-          ..write('unit: $unit, ')
-          ..write('nutritionFacts: $nutritionFacts, ')
-          ..write('measurementType: $measurementType')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-      id,
-      name,
-      description,
-      productType,
-      manufactureDate,
-      expirationDate,
-      massVolume,
-      unit,
-      nutritionFacts,
-      measurementType);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is ProductData &&
-          other.id == this.id &&
-          other.name == this.name &&
-          other.description == this.description &&
-          other.productType == this.productType &&
-          other.manufactureDate == this.manufactureDate &&
-          other.expirationDate == this.expirationDate &&
-          other.massVolume == this.massVolume &&
-          other.unit == this.unit &&
-          other.nutritionFacts == this.nutritionFacts &&
-          other.measurementType == this.measurementType);
-}
-
-class ProductCompanion extends UpdateCompanion<ProductData> {
-  final Value<int> id;
-  final Value<String> name;
-  final Value<String?> description;
-  final Value<String> productType;
-  final Value<DateTime> manufactureDate;
-  final Value<DateTime> expirationDate;
-  final Value<double> massVolume;
-  final Value<String> unit;
-  final Value<String> nutritionFacts;
-  final Value<String> measurementType;
-  const ProductCompanion({
-    this.id = const Value.absent(),
-    this.name = const Value.absent(),
-    this.description = const Value.absent(),
-    this.productType = const Value.absent(),
-    this.manufactureDate = const Value.absent(),
-    this.expirationDate = const Value.absent(),
-    this.massVolume = const Value.absent(),
-    this.unit = const Value.absent(),
-    this.nutritionFacts = const Value.absent(),
-    this.measurementType = const Value.absent(),
-  });
-  ProductCompanion.insert({
-    this.id = const Value.absent(),
-    required String name,
-    this.description = const Value.absent(),
-    required String productType,
-    required DateTime manufactureDate,
-    required DateTime expirationDate,
-    required double massVolume,
-    required String unit,
-    required String nutritionFacts,
-    required String measurementType,
-  })  : name = Value(name),
-        productType = Value(productType),
-        manufactureDate = Value(manufactureDate),
-        expirationDate = Value(expirationDate),
-        massVolume = Value(massVolume),
-        unit = Value(unit),
-        nutritionFacts = Value(nutritionFacts),
-        measurementType = Value(measurementType);
-  static Insertable<ProductData> custom({
-    Expression<int>? id,
-    Expression<String>? name,
-    Expression<String>? description,
-    Expression<String>? productType,
-    Expression<DateTime>? manufactureDate,
-    Expression<DateTime>? expirationDate,
-    Expression<double>? massVolume,
-    Expression<String>? unit,
-    Expression<String>? nutritionFacts,
-    Expression<String>? measurementType,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (name != null) 'name': name,
-      if (description != null) 'description': description,
-      if (productType != null) 'product_type': productType,
-      if (manufactureDate != null) 'manufacture_date': manufactureDate,
-      if (expirationDate != null) 'expiration_date': expirationDate,
-      if (massVolume != null) 'mass_volume': massVolume,
-      if (unit != null) 'unit': unit,
-      if (nutritionFacts != null) 'nutrition_facts': nutritionFacts,
-      if (measurementType != null) 'measurement_type': measurementType,
-    });
-  }
-
-  ProductCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? name,
-      Value<String?>? description,
-      Value<String>? productType,
-      Value<DateTime>? manufactureDate,
-      Value<DateTime>? expirationDate,
-      Value<double>? massVolume,
-      Value<String>? unit,
-      Value<String>? nutritionFacts,
-      Value<String>? measurementType}) {
-    return ProductCompanion(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      description: description ?? this.description,
-      productType: productType ?? this.productType,
-      manufactureDate: manufactureDate ?? this.manufactureDate,
-      expirationDate: expirationDate ?? this.expirationDate,
-      massVolume: massVolume ?? this.massVolume,
-      unit: unit ?? this.unit,
-      nutritionFacts: nutritionFacts ?? this.nutritionFacts,
-      measurementType: measurementType ?? this.measurementType,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (description.present) {
-      map['description'] = Variable<String>(description.value);
-    }
-    if (productType.present) {
-      map['product_type'] = Variable<String>(productType.value);
-    }
-    if (manufactureDate.present) {
-      map['manufacture_date'] = Variable<DateTime>(manufactureDate.value);
-    }
-    if (expirationDate.present) {
-      map['expiration_date'] = Variable<DateTime>(expirationDate.value);
-    }
-    if (massVolume.present) {
-      map['mass_volume'] = Variable<double>(massVolume.value);
-    }
-    if (unit.present) {
-      map['unit'] = Variable<String>(unit.value);
-    }
-    if (nutritionFacts.present) {
-      map['nutrition_facts'] = Variable<String>(nutritionFacts.value);
-    }
-    if (measurementType.present) {
-      map['measurement_type'] = Variable<String>(measurementType.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ProductCompanion(')
-          ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('description: $description, ')
-          ..write('productType: $productType, ')
-          ..write('manufactureDate: $manufactureDate, ')
-          ..write('expirationDate: $expirationDate, ')
-          ..write('massVolume: $massVolume, ')
-          ..write('unit: $unit, ')
-          ..write('nutritionFacts: $nutritionFacts, ')
-          ..write('measurementType: $measurementType')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $CategoryTable extends Category
     with TableInfo<$CategoryTable, CategoryData> {
   @override
@@ -702,6 +175,488 @@ class CategoryCompanion extends UpdateCompanion<CategoryData> {
     return (StringBuffer('CategoryCompanion(')
           ..write('id: $id, ')
           ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _productTypeMeta =
+      const VerificationMeta('productType');
+  @override
+  late final GeneratedColumn<int> productType = GeneratedColumn<int>(
+      'product_type', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES category (id)'));
+  static const VerificationMeta _manufactureDateMeta =
+      const VerificationMeta('manufactureDate');
+  @override
+  late final GeneratedColumn<DateTime> manufactureDate =
+      GeneratedColumn<DateTime>('manufacture_date', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _expirationDateMeta =
+      const VerificationMeta('expirationDate');
+  @override
+  late final GeneratedColumn<DateTime> expirationDate =
+      GeneratedColumn<DateTime>('expiration_date', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _massVolumeMeta =
+      const VerificationMeta('massVolume');
+  @override
+  late final GeneratedColumn<double> massVolume = GeneratedColumn<double>(
+      'mass_volume', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumnWithTypeConverter<Unit, int> unit =
+      GeneratedColumn<int>('unit', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<Unit>($ProductTable.$converterunit);
+  static const VerificationMeta _nutritionFactsMeta =
+      const VerificationMeta('nutritionFacts');
+  @override
+  late final GeneratedColumn<String> nutritionFacts = GeneratedColumn<String>(
+      'nutrition_facts', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        description,
+        productType,
+        manufactureDate,
+        expirationDate,
+        massVolume,
+        unit,
+        nutritionFacts
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'product';
+  @override
+  VerificationContext validateIntegrity(Insertable<ProductData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('product_type')) {
+      context.handle(
+          _productTypeMeta,
+          productType.isAcceptableOrUnknown(
+              data['product_type']!, _productTypeMeta));
+    } else if (isInserting) {
+      context.missing(_productTypeMeta);
+    }
+    if (data.containsKey('manufacture_date')) {
+      context.handle(
+          _manufactureDateMeta,
+          manufactureDate.isAcceptableOrUnknown(
+              data['manufacture_date']!, _manufactureDateMeta));
+    } else if (isInserting) {
+      context.missing(_manufactureDateMeta);
+    }
+    if (data.containsKey('expiration_date')) {
+      context.handle(
+          _expirationDateMeta,
+          expirationDate.isAcceptableOrUnknown(
+              data['expiration_date']!, _expirationDateMeta));
+    } else if (isInserting) {
+      context.missing(_expirationDateMeta);
+    }
+    if (data.containsKey('mass_volume')) {
+      context.handle(
+          _massVolumeMeta,
+          massVolume.isAcceptableOrUnknown(
+              data['mass_volume']!, _massVolumeMeta));
+    } else if (isInserting) {
+      context.missing(_massVolumeMeta);
+    }
+    context.handle(_unitMeta, const VerificationResult.success());
+    if (data.containsKey('nutrition_facts')) {
+      context.handle(
+          _nutritionFactsMeta,
+          nutritionFacts.isAcceptableOrUnknown(
+              data['nutrition_facts']!, _nutritionFactsMeta));
+    } else if (isInserting) {
+      context.missing(_nutritionFactsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProductData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      productType: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}product_type'])!,
+      manufactureDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}manufacture_date'])!,
+      expirationDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}expiration_date'])!,
+      massVolume: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}mass_volume'])!,
+      unit: $ProductTable.$converterunit.fromSql(attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}unit'])!),
+      nutritionFacts: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}nutrition_facts'])!,
+    );
+  }
+
+  @override
+  $ProductTable createAlias(String alias) {
+    return $ProductTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<Unit, int, int> $converterunit =
+      const EnumIndexConverter<Unit>(Unit.values);
+}
+
+class ProductData extends DataClass implements Insertable<ProductData> {
+  final int id;
+  final String name;
+  final String? description;
+  final int productType;
+  final DateTime manufactureDate;
+  final DateTime expirationDate;
+  final double massVolume;
+  final Unit unit;
+  final String nutritionFacts;
+  const ProductData(
+      {required this.id,
+      required this.name,
+      this.description,
+      required this.productType,
+      required this.manufactureDate,
+      required this.expirationDate,
+      required this.massVolume,
+      required this.unit,
+      required this.nutritionFacts});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['product_type'] = Variable<int>(productType);
+    map['manufacture_date'] = Variable<DateTime>(manufactureDate);
+    map['expiration_date'] = Variable<DateTime>(expirationDate);
+    map['mass_volume'] = Variable<double>(massVolume);
+    {
+      map['unit'] = Variable<int>($ProductTable.$converterunit.toSql(unit));
+    }
+    map['nutrition_facts'] = Variable<String>(nutritionFacts);
+    return map;
+  }
+
+  ProductCompanion toCompanion(bool nullToAbsent) {
+    return ProductCompanion(
+      id: Value(id),
+      name: Value(name),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      productType: Value(productType),
+      manufactureDate: Value(manufactureDate),
+      expirationDate: Value(expirationDate),
+      massVolume: Value(massVolume),
+      unit: Value(unit),
+      nutritionFacts: Value(nutritionFacts),
+    );
+  }
+
+  factory ProductData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductData(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String?>(json['description']),
+      productType: serializer.fromJson<int>(json['productType']),
+      manufactureDate: serializer.fromJson<DateTime>(json['manufactureDate']),
+      expirationDate: serializer.fromJson<DateTime>(json['expirationDate']),
+      massVolume: serializer.fromJson<double>(json['massVolume']),
+      unit: $ProductTable.$converterunit
+          .fromJson(serializer.fromJson<int>(json['unit'])),
+      nutritionFacts: serializer.fromJson<String>(json['nutritionFacts']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String?>(description),
+      'productType': serializer.toJson<int>(productType),
+      'manufactureDate': serializer.toJson<DateTime>(manufactureDate),
+      'expirationDate': serializer.toJson<DateTime>(expirationDate),
+      'massVolume': serializer.toJson<double>(massVolume),
+      'unit': serializer.toJson<int>($ProductTable.$converterunit.toJson(unit)),
+      'nutritionFacts': serializer.toJson<String>(nutritionFacts),
+    };
+  }
+
+  ProductData copyWith(
+          {int? id,
+          String? name,
+          Value<String?> description = const Value.absent(),
+          int? productType,
+          DateTime? manufactureDate,
+          DateTime? expirationDate,
+          double? massVolume,
+          Unit? unit,
+          String? nutritionFacts}) =>
+      ProductData(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        description: description.present ? description.value : this.description,
+        productType: productType ?? this.productType,
+        manufactureDate: manufactureDate ?? this.manufactureDate,
+        expirationDate: expirationDate ?? this.expirationDate,
+        massVolume: massVolume ?? this.massVolume,
+        unit: unit ?? this.unit,
+        nutritionFacts: nutritionFacts ?? this.nutritionFacts,
+      );
+  ProductData copyWithCompanion(ProductCompanion data) {
+    return ProductData(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      description:
+          data.description.present ? data.description.value : this.description,
+      productType:
+          data.productType.present ? data.productType.value : this.productType,
+      manufactureDate: data.manufactureDate.present
+          ? data.manufactureDate.value
+          : this.manufactureDate,
+      expirationDate: data.expirationDate.present
+          ? data.expirationDate.value
+          : this.expirationDate,
+      massVolume:
+          data.massVolume.present ? data.massVolume.value : this.massVolume,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      nutritionFacts: data.nutritionFacts.present
+          ? data.nutritionFacts.value
+          : this.nutritionFacts,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductData(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('productType: $productType, ')
+          ..write('manufactureDate: $manufactureDate, ')
+          ..write('expirationDate: $expirationDate, ')
+          ..write('massVolume: $massVolume, ')
+          ..write('unit: $unit, ')
+          ..write('nutritionFacts: $nutritionFacts')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, description, productType,
+      manufactureDate, expirationDate, massVolume, unit, nutritionFacts);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductData &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.productType == this.productType &&
+          other.manufactureDate == this.manufactureDate &&
+          other.expirationDate == this.expirationDate &&
+          other.massVolume == this.massVolume &&
+          other.unit == this.unit &&
+          other.nutritionFacts == this.nutritionFacts);
+}
+
+class ProductCompanion extends UpdateCompanion<ProductData> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String?> description;
+  final Value<int> productType;
+  final Value<DateTime> manufactureDate;
+  final Value<DateTime> expirationDate;
+  final Value<double> massVolume;
+  final Value<Unit> unit;
+  final Value<String> nutritionFacts;
+  const ProductCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.productType = const Value.absent(),
+    this.manufactureDate = const Value.absent(),
+    this.expirationDate = const Value.absent(),
+    this.massVolume = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.nutritionFacts = const Value.absent(),
+  });
+  ProductCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.description = const Value.absent(),
+    required int productType,
+    required DateTime manufactureDate,
+    required DateTime expirationDate,
+    required double massVolume,
+    required Unit unit,
+    required String nutritionFacts,
+  })  : name = Value(name),
+        productType = Value(productType),
+        manufactureDate = Value(manufactureDate),
+        expirationDate = Value(expirationDate),
+        massVolume = Value(massVolume),
+        unit = Value(unit),
+        nutritionFacts = Value(nutritionFacts);
+  static Insertable<ProductData> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<int>? productType,
+    Expression<DateTime>? manufactureDate,
+    Expression<DateTime>? expirationDate,
+    Expression<double>? massVolume,
+    Expression<int>? unit,
+    Expression<String>? nutritionFacts,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (productType != null) 'product_type': productType,
+      if (manufactureDate != null) 'manufacture_date': manufactureDate,
+      if (expirationDate != null) 'expiration_date': expirationDate,
+      if (massVolume != null) 'mass_volume': massVolume,
+      if (unit != null) 'unit': unit,
+      if (nutritionFacts != null) 'nutrition_facts': nutritionFacts,
+    });
+  }
+
+  ProductCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<String?>? description,
+      Value<int>? productType,
+      Value<DateTime>? manufactureDate,
+      Value<DateTime>? expirationDate,
+      Value<double>? massVolume,
+      Value<Unit>? unit,
+      Value<String>? nutritionFacts}) {
+    return ProductCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      productType: productType ?? this.productType,
+      manufactureDate: manufactureDate ?? this.manufactureDate,
+      expirationDate: expirationDate ?? this.expirationDate,
+      massVolume: massVolume ?? this.massVolume,
+      unit: unit ?? this.unit,
+      nutritionFacts: nutritionFacts ?? this.nutritionFacts,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (productType.present) {
+      map['product_type'] = Variable<int>(productType.value);
+    }
+    if (manufactureDate.present) {
+      map['manufacture_date'] = Variable<DateTime>(manufactureDate.value);
+    }
+    if (expirationDate.present) {
+      map['expiration_date'] = Variable<DateTime>(expirationDate.value);
+    }
+    if (massVolume.present) {
+      map['mass_volume'] = Variable<double>(massVolume.value);
+    }
+    if (unit.present) {
+      map['unit'] =
+          Variable<int>($ProductTable.$converterunit.toSql(unit.value));
+    }
+    if (nutritionFacts.present) {
+      map['nutrition_facts'] = Variable<String>(nutritionFacts.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('productType: $productType, ')
+          ..write('manufactureDate: $manufactureDate, ')
+          ..write('expirationDate: $expirationDate, ')
+          ..write('massVolume: $massVolume, ')
+          ..write('unit: $unit, ')
+          ..write('nutritionFacts: $nutritionFacts')
           ..write(')'))
         .toString();
   }
@@ -1026,8 +981,8 @@ class ProductTransactionCompanion
 abstract class _$ProductDatabase extends GeneratedDatabase {
   _$ProductDatabase(QueryExecutor e) : super(e);
   $ProductDatabaseManager get managers => $ProductDatabaseManager(this);
-  late final $ProductTable product = $ProductTable(this);
   late final $CategoryTable category = $CategoryTable(this);
+  late final $ProductTable product = $ProductTable(this);
   late final $ProductTransactionTable productTransaction =
       $ProductTransactionTable(this);
   @override
@@ -1035,37 +990,247 @@ abstract class _$ProductDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [product, category, productTransaction];
+      [category, product, productTransaction];
 }
 
+typedef $$CategoryTableCreateCompanionBuilder = CategoryCompanion Function({
+  Value<int> id,
+  required String name,
+});
+typedef $$CategoryTableUpdateCompanionBuilder = CategoryCompanion Function({
+  Value<int> id,
+  Value<String> name,
+});
+
+final class $$CategoryTableReferences
+    extends BaseReferences<_$ProductDatabase, $CategoryTable, CategoryData> {
+  $$CategoryTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$ProductTable, List<ProductData>>
+      _productRefsTable(_$ProductDatabase db) =>
+          MultiTypedResultKey.fromTable(db.product,
+              aliasName:
+                  $_aliasNameGenerator(db.category.id, db.product.productType));
+
+  $$ProductTableProcessedTableManager get productRefs {
+    final manager = $$ProductTableTableManager($_db, $_db.product)
+        .filter((f) => f.productType.id($_item.id));
+
+    final cache = $_typedResult.readTableOrNull(_productRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$CategoryTableFilterComposer
+    extends Composer<_$ProductDatabase, $CategoryTable> {
+  $$CategoryTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> productRefs(
+      Expression<bool> Function($$ProductTableFilterComposer f) f) {
+    final $$ProductTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.product,
+        getReferencedColumn: (t) => t.productType,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProductTableFilterComposer(
+              $db: $db,
+              $table: $db.product,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$CategoryTableOrderingComposer
+    extends Composer<_$ProductDatabase, $CategoryTable> {
+  $$CategoryTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CategoryTableAnnotationComposer
+    extends Composer<_$ProductDatabase, $CategoryTable> {
+  $$CategoryTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  Expression<T> productRefs<T extends Object>(
+      Expression<T> Function($$ProductTableAnnotationComposer a) f) {
+    final $$ProductTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.product,
+        getReferencedColumn: (t) => t.productType,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProductTableAnnotationComposer(
+              $db: $db,
+              $table: $db.product,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$CategoryTableTableManager extends RootTableManager<
+    _$ProductDatabase,
+    $CategoryTable,
+    CategoryData,
+    $$CategoryTableFilterComposer,
+    $$CategoryTableOrderingComposer,
+    $$CategoryTableAnnotationComposer,
+    $$CategoryTableCreateCompanionBuilder,
+    $$CategoryTableUpdateCompanionBuilder,
+    (CategoryData, $$CategoryTableReferences),
+    CategoryData,
+    PrefetchHooks Function({bool productRefs})> {
+  $$CategoryTableTableManager(_$ProductDatabase db, $CategoryTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CategoryTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CategoryTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CategoryTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+          }) =>
+              CategoryCompanion(
+            id: id,
+            name: name,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String name,
+          }) =>
+              CategoryCompanion.insert(
+            id: id,
+            name: name,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) =>
+                  (e.readTable(table), $$CategoryTableReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: ({productRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (productRefs) db.product],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (productRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable:
+                            $$CategoryTableReferences._productRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$CategoryTableReferences(db, table, p0)
+                                .productRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.productType == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$CategoryTableProcessedTableManager = ProcessedTableManager<
+    _$ProductDatabase,
+    $CategoryTable,
+    CategoryData,
+    $$CategoryTableFilterComposer,
+    $$CategoryTableOrderingComposer,
+    $$CategoryTableAnnotationComposer,
+    $$CategoryTableCreateCompanionBuilder,
+    $$CategoryTableUpdateCompanionBuilder,
+    (CategoryData, $$CategoryTableReferences),
+    CategoryData,
+    PrefetchHooks Function({bool productRefs})>;
 typedef $$ProductTableCreateCompanionBuilder = ProductCompanion Function({
   Value<int> id,
   required String name,
   Value<String?> description,
-  required String productType,
+  required int productType,
   required DateTime manufactureDate,
   required DateTime expirationDate,
   required double massVolume,
-  required String unit,
+  required Unit unit,
   required String nutritionFacts,
-  required String measurementType,
 });
 typedef $$ProductTableUpdateCompanionBuilder = ProductCompanion Function({
   Value<int> id,
   Value<String> name,
   Value<String?> description,
-  Value<String> productType,
+  Value<int> productType,
   Value<DateTime> manufactureDate,
   Value<DateTime> expirationDate,
   Value<double> massVolume,
-  Value<String> unit,
+  Value<Unit> unit,
   Value<String> nutritionFacts,
-  Value<String> measurementType,
 });
 
 final class $$ProductTableReferences
     extends BaseReferences<_$ProductDatabase, $ProductTable, ProductData> {
   $$ProductTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $CategoryTable _productTypeTable(_$ProductDatabase db) =>
+      db.category.createAlias(
+          $_aliasNameGenerator(db.product.productType, db.category.id));
+
+  $$CategoryTableProcessedTableManager get productType {
+    final manager = $$CategoryTableTableManager($_db, $_db.category)
+        .filter((f) => f.id($_item.productType!));
+    final item = $_typedResult.readTableOrNull(_productTypeTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 
   static MultiTypedResultKey<$ProductTransactionTable,
       List<ProductTransactionData>> _productTransactionRefsTable(
@@ -1104,9 +1269,6 @@ class $$ProductTableFilterComposer
   ColumnFilters<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get productType => $composableBuilder(
-      column: $table.productType, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<DateTime> get manufactureDate => $composableBuilder(
       column: $table.manufactureDate,
       builder: (column) => ColumnFilters(column));
@@ -1118,16 +1280,34 @@ class $$ProductTableFilterComposer
   ColumnFilters<double> get massVolume => $composableBuilder(
       column: $table.massVolume, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get unit => $composableBuilder(
-      column: $table.unit, builder: (column) => ColumnFilters(column));
+  ColumnWithTypeConverterFilters<Unit, Unit, int> get unit =>
+      $composableBuilder(
+          column: $table.unit,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 
   ColumnFilters<String> get nutritionFacts => $composableBuilder(
       column: $table.nutritionFacts,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get measurementType => $composableBuilder(
-      column: $table.measurementType,
-      builder: (column) => ColumnFilters(column));
+  $$CategoryTableFilterComposer get productType {
+    final $$CategoryTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.productType,
+        referencedTable: $db.category,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CategoryTableFilterComposer(
+              $db: $db,
+              $table: $db.category,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   Expression<bool> productTransactionRefs(
       Expression<bool> Function($$ProductTransactionTableFilterComposer f) f) {
@@ -1169,9 +1349,6 @@ class $$ProductTableOrderingComposer
   ColumnOrderings<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get productType => $composableBuilder(
-      column: $table.productType, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<DateTime> get manufactureDate => $composableBuilder(
       column: $table.manufactureDate,
       builder: (column) => ColumnOrderings(column));
@@ -1183,16 +1360,32 @@ class $$ProductTableOrderingComposer
   ColumnOrderings<double> get massVolume => $composableBuilder(
       column: $table.massVolume, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get unit => $composableBuilder(
+  ColumnOrderings<int> get unit => $composableBuilder(
       column: $table.unit, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get nutritionFacts => $composableBuilder(
       column: $table.nutritionFacts,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get measurementType => $composableBuilder(
-      column: $table.measurementType,
-      builder: (column) => ColumnOrderings(column));
+  $$CategoryTableOrderingComposer get productType {
+    final $$CategoryTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.productType,
+        referencedTable: $db.category,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CategoryTableOrderingComposer(
+              $db: $db,
+              $table: $db.category,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$ProductTableAnnotationComposer
@@ -1213,9 +1406,6 @@ class $$ProductTableAnnotationComposer
   GeneratedColumn<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => column);
 
-  GeneratedColumn<String> get productType => $composableBuilder(
-      column: $table.productType, builder: (column) => column);
-
   GeneratedColumn<DateTime> get manufactureDate => $composableBuilder(
       column: $table.manufactureDate, builder: (column) => column);
 
@@ -1225,14 +1415,31 @@ class $$ProductTableAnnotationComposer
   GeneratedColumn<double> get massVolume => $composableBuilder(
       column: $table.massVolume, builder: (column) => column);
 
-  GeneratedColumn<String> get unit =>
+  GeneratedColumnWithTypeConverter<Unit, int> get unit =>
       $composableBuilder(column: $table.unit, builder: (column) => column);
 
   GeneratedColumn<String> get nutritionFacts => $composableBuilder(
       column: $table.nutritionFacts, builder: (column) => column);
 
-  GeneratedColumn<String> get measurementType => $composableBuilder(
-      column: $table.measurementType, builder: (column) => column);
+  $$CategoryTableAnnotationComposer get productType {
+    final $$CategoryTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.productType,
+        referencedTable: $db.category,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CategoryTableAnnotationComposer(
+              $db: $db,
+              $table: $db.category,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   Expression<T> productTransactionRefs<T extends Object>(
       Expression<T> Function($$ProductTransactionTableAnnotationComposer a) f) {
@@ -1268,7 +1475,7 @@ class $$ProductTableTableManager extends RootTableManager<
     $$ProductTableUpdateCompanionBuilder,
     (ProductData, $$ProductTableReferences),
     ProductData,
-    PrefetchHooks Function({bool productTransactionRefs})> {
+    PrefetchHooks Function({bool productType, bool productTransactionRefs})> {
   $$ProductTableTableManager(_$ProductDatabase db, $ProductTable table)
       : super(TableManagerState(
           db: db,
@@ -1283,13 +1490,12 @@ class $$ProductTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String?> description = const Value.absent(),
-            Value<String> productType = const Value.absent(),
+            Value<int> productType = const Value.absent(),
             Value<DateTime> manufactureDate = const Value.absent(),
             Value<DateTime> expirationDate = const Value.absent(),
             Value<double> massVolume = const Value.absent(),
-            Value<String> unit = const Value.absent(),
+            Value<Unit> unit = const Value.absent(),
             Value<String> nutritionFacts = const Value.absent(),
-            Value<String> measurementType = const Value.absent(),
           }) =>
               ProductCompanion(
             id: id,
@@ -1301,19 +1507,17 @@ class $$ProductTableTableManager extends RootTableManager<
             massVolume: massVolume,
             unit: unit,
             nutritionFacts: nutritionFacts,
-            measurementType: measurementType,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String name,
             Value<String?> description = const Value.absent(),
-            required String productType,
+            required int productType,
             required DateTime manufactureDate,
             required DateTime expirationDate,
             required double massVolume,
-            required String unit,
+            required Unit unit,
             required String nutritionFacts,
-            required String measurementType,
           }) =>
               ProductCompanion.insert(
             id: id,
@@ -1325,19 +1529,44 @@ class $$ProductTableTableManager extends RootTableManager<
             massVolume: massVolume,
             unit: unit,
             nutritionFacts: nutritionFacts,
-            measurementType: measurementType,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) =>
                   (e.readTable(table), $$ProductTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({productTransactionRefs = false}) {
+          prefetchHooksCallback: (
+              {productType = false, productTransactionRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (productTransactionRefs) db.productTransaction
               ],
-              addJoins: null,
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (productType) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.productType,
+                    referencedTable:
+                        $$ProductTableReferences._productTypeTable(db),
+                    referencedColumn:
+                        $$ProductTableReferences._productTypeTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (productTransactionRefs)
@@ -1370,127 +1599,7 @@ typedef $$ProductTableProcessedTableManager = ProcessedTableManager<
     $$ProductTableUpdateCompanionBuilder,
     (ProductData, $$ProductTableReferences),
     ProductData,
-    PrefetchHooks Function({bool productTransactionRefs})>;
-typedef $$CategoryTableCreateCompanionBuilder = CategoryCompanion Function({
-  Value<int> id,
-  required String name,
-});
-typedef $$CategoryTableUpdateCompanionBuilder = CategoryCompanion Function({
-  Value<int> id,
-  Value<String> name,
-});
-
-class $$CategoryTableFilterComposer
-    extends Composer<_$ProductDatabase, $CategoryTable> {
-  $$CategoryTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnFilters(column));
-}
-
-class $$CategoryTableOrderingComposer
-    extends Composer<_$ProductDatabase, $CategoryTable> {
-  $$CategoryTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnOrderings(column));
-}
-
-class $$CategoryTableAnnotationComposer
-    extends Composer<_$ProductDatabase, $CategoryTable> {
-  $$CategoryTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-}
-
-class $$CategoryTableTableManager extends RootTableManager<
-    _$ProductDatabase,
-    $CategoryTable,
-    CategoryData,
-    $$CategoryTableFilterComposer,
-    $$CategoryTableOrderingComposer,
-    $$CategoryTableAnnotationComposer,
-    $$CategoryTableCreateCompanionBuilder,
-    $$CategoryTableUpdateCompanionBuilder,
-    (
-      CategoryData,
-      BaseReferences<_$ProductDatabase, $CategoryTable, CategoryData>
-    ),
-    CategoryData,
-    PrefetchHooks Function()> {
-  $$CategoryTableTableManager(_$ProductDatabase db, $CategoryTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$CategoryTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$CategoryTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$CategoryTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> name = const Value.absent(),
-          }) =>
-              CategoryCompanion(
-            id: id,
-            name: name,
-          ),
-          createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            required String name,
-          }) =>
-              CategoryCompanion.insert(
-            id: id,
-            name: name,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$CategoryTableProcessedTableManager = ProcessedTableManager<
-    _$ProductDatabase,
-    $CategoryTable,
-    CategoryData,
-    $$CategoryTableFilterComposer,
-    $$CategoryTableOrderingComposer,
-    $$CategoryTableAnnotationComposer,
-    $$CategoryTableCreateCompanionBuilder,
-    $$CategoryTableUpdateCompanionBuilder,
-    (
-      CategoryData,
-      BaseReferences<_$ProductDatabase, $CategoryTable, CategoryData>
-    ),
-    CategoryData,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool productType, bool productTransactionRefs})>;
 typedef $$ProductTransactionTableCreateCompanionBuilder
     = ProductTransactionCompanion Function({
   Value<int> id,
@@ -1770,10 +1879,10 @@ typedef $$ProductTransactionTableProcessedTableManager = ProcessedTableManager<
 class $ProductDatabaseManager {
   final _$ProductDatabase _db;
   $ProductDatabaseManager(this._db);
-  $$ProductTableTableManager get product =>
-      $$ProductTableTableManager(_db, _db.product);
   $$CategoryTableTableManager get category =>
       $$CategoryTableTableManager(_db, _db.category);
+  $$ProductTableTableManager get product =>
+      $$ProductTableTableManager(_db, _db.product);
   $$ProductTransactionTableTableManager get productTransaction =>
       $$ProductTransactionTableTableManager(_db, _db.productTransaction);
 }

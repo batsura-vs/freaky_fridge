@@ -14,57 +14,69 @@ class QrProductWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final productData = {
-      'name': product.name,
-      'productType': product.productType,
-      'manufactureDate': product.manufactureDate.toIso8601String(),
-      'expirationDate': product.expirationDate.toIso8601String(),
-      'massVolume': product.massVolume,
-      'unit': product.unit,
-      'nutritionFacts': product.nutritionFacts,
-      'measurementType': product.measurementType,
-    };
-    final qrData = jsonEncode(productData);
-    final painter = QrPainter(
-      data: qrData,
-      version: QrVersions.auto,
-    );
     return Scaffold(
-      appBar: AppBar(title: Text(product.name)),
-      body: Center(
-        child: FutureBuilder(
-          future: painter.toImageData(300),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return SizedBox(
-                width: 300,
-                height: 300,
-                child: Image.memory(
-                  snapshot.data!.buffer.asUint8List(),
-                ),
-              );
-            }
+      body: FutureBuilder(
+        future: ProductDatabase.instance.getCategoryById(product.productType),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) return Center(child: Text(snapshot.error.toString()));
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.share),
-        onPressed: () async {
-          var data = await painter.toImageData(600);
-          if (data == null) {
-            Get.showSnackbar(
-              const GetSnackBar(
-                message: 'Failed to generate QR code',
-              ),
-            );
-            return;
           }
-          Share.shareXFiles(
-            [
-              XFile.fromData(data.buffer.asUint8List(), mimeType: 'image/png'),
-            ],
-            fileNameOverrides: ['qr.png'],
+          final category = snapshot.data!;
+          final productData = {
+            'name': product.name,
+            'productType': category.name,
+            'manufactureDate': product.manufactureDate.toIso8601String(),
+            'expirationDate': product.expirationDate.toIso8601String(),
+            'massVolume': product.massVolume,
+            'unit': product.unit.name,
+            'nutritionFacts': product.nutritionFacts,
+          };
+          final qrData = jsonEncode(productData);
+          final painter = QrPainter(
+            data: qrData,
+            version: QrVersions.auto,
+          );
+          return Scaffold(
+            appBar: AppBar(title: Text(product.name)),
+            body: Center(
+              child: FutureBuilder(
+                future: painter.toImageData(300),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return SizedBox(
+                      width: 300,
+                      height: 300,
+                      child: Image.memory(
+                        snapshot.data!.buffer.asUint8List(),
+                      ),
+                    );
+                  }
+                  return const Center(child: CircularProgressIndicator());
+                },
+              ),
+            ),
+            floatingActionButton: FloatingActionButton(
+              child: const Icon(Icons.share),
+              onPressed: () async {
+                var data = await painter.toImageData(600);
+                if (data == null) {
+                  Get.showSnackbar(
+                    const GetSnackBar(
+                      message: 'Failed to generate QR code',
+                    ),
+                  );
+                  return;
+                }
+                Share.shareXFiles(
+                  [
+                    XFile.fromData(data.buffer.asUint8List(),
+                        mimeType: 'image/png'),
+                  ],
+                  fileNameOverrides: ['qr.png'],
+                );
+              },
+            ),
           );
         },
       ),

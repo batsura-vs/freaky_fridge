@@ -25,6 +25,31 @@ class ProductDatabase extends _$ProductDatabase {
 
   static ProductDatabase get instance => _instance;
 
+  Future<void> _ensureDefaultCategory() async {
+    final categories = await select(category).get();
+    if (categories.isEmpty) {
+      await into(category).insert(
+        CategoryCompanion.insert(name: 'Default'),
+      );
+    }
+  }
+
+  @override
+  Future<void> onOpen(OpeningDetails details) async {
+    await _ensureDefaultCategory();
+  }
+
+  Future<int> insertCategory(CategoryCompanion category) =>
+      into(this.category).insert(category);
+
+  Future<List<CategoryData>> getAllCategories() => select(category).get();
+
+  Future<CategoryData> getCategoryById(int id) async {
+    return await (select(category)..where((tbl) => tbl.id.equals(id)))
+            .getSingleOrNull() ??
+        const CategoryData(id: -1, name: "Default");
+  }
+
   // Product methods
   Future<List<ProductData>> get allProducts => select(product).get();
   Stream<List<ProductData>> watchAllProducts() => select(product).watch();
