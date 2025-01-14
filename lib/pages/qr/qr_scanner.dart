@@ -18,40 +18,40 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
   void _handleBarcode(BarcodeCapture barcodes) async {
     var code = barcodes.barcodes.firstOrNull;
     if (code != null && code.displayValue != null) {
-      // try {
-      final String qrData = code.displayValue!;
-      final decodedBytes = base64Decode(qrData);
-      final decompressedBytes = gzip.decode(decodedBytes);
-      final decodedString = utf8.decode(decompressedBytes);
-      final List<dynamic> productData = jsonDecode(decodedString);
-      final prType = productData[1];
-      final categ = await ProductDatabase.instance.getCategoryByName(prType);
-      int catId = categ?.id ?? -1;
-      if (catId == -1) {
-        catId = await ProductDatabase.instance.insertCategory(
-          CategoryCompanion.insert(
-            name: prType ?? "Default",
+      try {
+        final String qrData = code.displayValue!;
+        final decodedBytes = base64Decode(qrData);
+        final decompressedBytes = gzip.decode(decodedBytes);
+        final decodedString = utf8.decode(decompressedBytes);
+        final List<dynamic> productData = jsonDecode(decodedString);
+        final prType = productData[1];
+        final categ = await ProductDatabase.instance.getCategoryByName(prType);
+        int catId = categ?.id ?? -1;
+        if (catId == -1) {
+          catId = await ProductDatabase.instance.insertCategory(
+            CategoryCompanion.insert(
+              name: prType ?? "Default",
+            ),
+          );
+        }
+        Get.off(
+          () => ProductPage(
+            product: ProductData(
+              id: -1,
+              name: productData[0],
+              productType: catId,
+              manufactureDate: DateTime.parse(productData[2]),
+              expirationDate: DateTime.parse(productData[3]),
+              massVolume: productData[4],
+              unit: Unit.values.firstWhere((u) => u.name == productData[5]),
+              nutritionFacts: productData[6],
+            ),
           ),
         );
+      } catch (e) {
+        debugPrint('Failed to decode QR code: $e');
+        return;
       }
-      Get.off(
-        () => ProductPage(
-          product: ProductData(
-            id: -1,
-            name: productData[0],
-            productType: catId,
-            manufactureDate: DateTime.parse(productData[2]),
-            expirationDate: DateTime.parse(productData[3]),
-            massVolume: productData[4],
-            unit: Unit.values.firstWhere((u) => u.name == productData[5]),
-            nutritionFacts: productData[6],
-          ),
-        ),
-      );
-      // } catch (e) {
-      //   debugPrint('Failed to decode QR code: $e');
-      //   return;
-      // }
     }
   }
 
