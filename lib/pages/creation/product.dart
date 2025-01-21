@@ -217,7 +217,15 @@ class ProductPage extends StatelessWidget {
                         items: Unit.values.map((Unit unit) {
                           return DropdownMenuItem<Unit>(
                             value: unit,
-                            child: Text(unit.toString().split('.').last),
+                            child: Text(
+                              switch (unit) {
+                                Unit.grams => "Граммы",
+                                Unit.kilograms => "Килограммы",
+                                Unit.milliliters => "Миллилитры",
+                                Unit.liters => "Литры",
+                                Unit.pieces => "Штуки",
+                              }
+                            ),
                           );
                         }).toList(),
                         onChanged: (value) {

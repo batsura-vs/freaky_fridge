@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:freaky_fridge/database/database.dart';
+import 'package:freaky_fridge/database/models/product.dart';
 import 'package:freaky_fridge/pages/creation/product.dart';
 import 'package:freaky_fridge/pages/qr/qr_product.dart';
 import 'package:get/get.dart';
@@ -108,7 +109,13 @@ class ProductsPage extends StatelessWidget {
                                   'Истекает: ${DateFormat('yyyy-MM-dd').format(filteredProducts[index].expirationDate)}',
                                 ),
                                 Text(
-                                  'Масса/объем: ${filteredProducts[index].massVolume} ${filteredProducts[index].unit}',
+                                  'Масса/объем: ${filteredProducts[index].massVolume} ${switch (filteredProducts[index].unit) {
+                                    Unit.grams => "Г",
+                                    Unit.kilograms => "Кг",
+                                    Unit.milliliters => "Мл",
+                                    Unit.liters => "Л",
+                                    Unit.pieces => "Ш",
+                                  }}',
                                 ),
                               ],
                             ),
@@ -128,7 +135,8 @@ class ProductsPage extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                          'Пищевая ценность: ${filteredProducts[index].nutritionFacts}'),
+                                        'Пищевая ценность: ${filteredProducts[index].nutritionFacts}',
+                                      ),
                                     ],
                                   ),
                                   actions: [
@@ -153,7 +161,10 @@ class ProductsPage extends StatelessWidget {
                       );
                     })
                   : const Center(
-                      child: Text("Продуктов пока нет. Пожалуйста, добавьте что-нибудь."))
+                      child: Text(
+                        "Продуктов пока нет. Пожалуйста, добавьте что-нибудь.",
+                      ),
+                    )
               : const Center(child: CircularProgressIndicator()),
         ),
       ),
