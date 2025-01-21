@@ -22,7 +22,7 @@ class WishList extends StatelessWidget {
                       wishController.wishList[index].quantity.toString(),
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Quantity',
+                    labelText: 'Количество',
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) {
@@ -40,7 +40,7 @@ class WishList extends StatelessWidget {
                 );
                 Get.back();
               },
-              child: const Text('Delete'),
+              child: const Text('Удалить'),
             ),
             TextButton(
               onPressed: () {
@@ -50,7 +50,7 @@ class WishList extends StatelessWidget {
                 );
                 Get.back();
               },
-              child: const Text('Save'),
+              child: const Text('Сохранить'),
             ),
           ],
         );
@@ -65,7 +65,7 @@ class WishList extends StatelessWidget {
         slivers: [
           const SliverAppBar(
             title: Text(
-              "Wish list",
+              "Список покупок",
             ),
             actions: [],
           ),
@@ -91,7 +91,7 @@ class WishList extends StatelessWidget {
                           builder: (context, controller) => TextFormField(
                             key: UniqueKey(),
                             decoration: InputDecoration(
-                              labelText: 'Product',
+                              labelText: 'Продукт',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10.0),
                               ),
@@ -142,7 +142,7 @@ class WishList extends StatelessWidget {
                             wishController.wishList[index].product.name,
                           ),
                           subtitle: Text(
-                            'Quantity: ${wishController.wishList[index].quantity}',
+                            'Количество: ${wishController.wishList[index].quantity}',
                           ),
                           trailing: IconButton(
                             icon: const Icon(Icons.more_vert),

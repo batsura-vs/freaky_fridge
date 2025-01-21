@@ -12,7 +12,7 @@ class ExpirationService extends GetxService {
       const AndroidNotificationDetails(
     'PRODUCTS',
     'EXPIRATION',
-    channelDescription: 'Notifications about product expiration',
+    channelDescription: 'Уведомления об истечении срока годности продукта',
     playSound: true,
     importance: Importance.max,
     priority: Priority.high,
@@ -38,7 +38,7 @@ class ExpirationService extends GetxService {
       NotificationResponse notificationResponse) async {
     final String? payload = notificationResponse.payload;
     if (notificationResponse.payload != null) {
-      debugPrint('notification payload: $payload');
+      debugPrint('полезная нагрузка уведомления: $payload');
     }
   }
 

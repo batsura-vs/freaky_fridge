@@ -12,7 +12,7 @@ class CategoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Category'),
+        title: const Text('Новая категория'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -22,7 +22,7 @@ class CategoryPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Category Name',
+                  labelText: 'Имя категории',
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (value) => controller.updateCategoryName(value),
@@ -33,7 +33,7 @@ class CategoryPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Save'),
+        label: const Text('Сохранить'),
         icon: const Icon(Icons.save),
         onPressed: () async {
           await ProductDatabase.instance.insertCategory(

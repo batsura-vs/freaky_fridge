@@ -27,7 +27,7 @@ class ProductPage extends StatelessWidget {
               onPressed: () => Get.back(),
             ),
             title: Text(
-              controller.id.value == -1 ? "New Product" : "Edit Product",
+              controller.id.value == -1 ? "Новый продукт" : "Редактировать продукт",
             ),
             actions: <Widget>[
               if (controller.id.value != -1)
@@ -55,7 +55,7 @@ class ProductPage extends StatelessWidget {
                       () => TextFormField(
                         initialValue: controller.name.value,
                         decoration: InputDecoration(
-                          labelText: 'Name',
+                          labelText: 'Название',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -72,7 +72,7 @@ class ProductPage extends StatelessWidget {
                         minLines: 3,
                         maxLines: 5,
                         decoration: InputDecoration(
-                          labelText: 'Description',
+                          labelText: 'Описание',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -99,7 +99,7 @@ class ProductPage extends StatelessWidget {
                                 child: DropdownButtonFormField<int>(
                                   value: controller.category,
                                   decoration: InputDecoration(
-                                    labelText: 'Category',
+                                    labelText: 'Категория',
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10.0),
                                     ),
@@ -132,7 +132,7 @@ class ProductPage extends StatelessWidget {
                     child: Obx(
                       () => TextFormField(
                         decoration: InputDecoration(
-                          labelText: 'Manufacture Date',
+                          labelText: 'Дата изготовления',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -161,7 +161,7 @@ class ProductPage extends StatelessWidget {
                     child: Obx(
                       () => TextFormField(
                         decoration: InputDecoration(
-                          labelText: 'Expiration Date',
+                          labelText: 'Срок годности',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -191,7 +191,7 @@ class ProductPage extends StatelessWidget {
                       () => TextFormField(
                         initialValue: controller.massVolume.value.toString(),
                         decoration: InputDecoration(
-                          labelText: 'Mass/Volume',
+                          labelText: 'Масса/объем',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -209,7 +209,7 @@ class ProductPage extends StatelessWidget {
                       () => DropdownButtonFormField<Unit>(
                         value: controller.massVolumeUnit,
                         decoration: InputDecoration(
-                          labelText: 'Unit (Mass/Volume)',
+                          labelText: 'Единица измерения (Масса/объем)',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -236,7 +236,7 @@ class ProductPage extends StatelessWidget {
                         minLines: 3,
                         maxLines: 5,
                         decoration: InputDecoration(
-                          labelText: 'Nutrition Facts',
+                          labelText: 'Пищевая ценность',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),

@@ -28,7 +28,7 @@ class ProductsPage extends StatelessWidget {
               builder: (context, controller) => SearchBar(
                 elevation: const WidgetStatePropertyAll(0),
                 leading: const Icon(Icons.search),
-                hintText: "Search",
+                hintText: "Поиск",
                 controller: controller,
                 onTap: () => controller.openView(),
                 onSubmitted: (value) {
@@ -102,13 +102,13 @@ class ProductsPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Manufactured: ${DateFormat('yyyy-MM-dd').format(filteredProducts[index].manufactureDate)}',
+                                  'Изготовлен: ${DateFormat('yyyy-MM-dd').format(filteredProducts[index].manufactureDate)}',
                                 ),
                                 Text(
-                                  'Expires: ${DateFormat('yyyy-MM-dd').format(filteredProducts[index].expirationDate)}',
+                                  'Истекает: ${DateFormat('yyyy-MM-dd').format(filteredProducts[index].expirationDate)}',
                                 ),
                                 Text(
-                                  'Mass/Volume: ${filteredProducts[index].massVolume} ${filteredProducts[index].unit}',
+                                  'Масса/объем: ${filteredProducts[index].massVolume} ${filteredProducts[index].unit}',
                                 ),
                               ],
                             ),
@@ -128,13 +128,13 @@ class ProductsPage extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                          'Nutrition Facts: ${filteredProducts[index].nutritionFacts}'),
+                                          'Пищевая ценность: ${filteredProducts[index].nutritionFacts}'),
                                     ],
                                   ),
                                   actions: [
                                     TextButton(
                                       onPressed: () => Navigator.pop(context),
-                                      child: const Text('Close'),
+                                      child: const Text('Закрыть'),
                                     ),
                                   ],
                                 ),
@@ -153,7 +153,7 @@ class ProductsPage extends StatelessWidget {
                       );
                     })
                   : const Center(
-                      child: Text("No products, yet. Please add some."))
+                      child: Text("Продуктов пока нет. Пожалуйста, добавьте что-нибудь."))
               : const Center(child: CircularProgressIndicator()),
         ),
       ),

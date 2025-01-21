@@ -13,7 +13,7 @@ class CategoryListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Categories'),
+        title: const Text('Категории'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -31,9 +31,9 @@ class CategoryListScreen extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Ошибка: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No categories yet.'));
+            return const Center(child: Text('Пока нет категорий.'));
           } else {
             final categories = snapshot.data!;
             return ListView.builder(
@@ -75,15 +75,15 @@ class CategoryListScreen extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Edit Category'),
+          title: const Text('Редактировать категорию'),
           content: TextField(
             controller: nameController,
-            decoration: const InputDecoration(labelText: 'Category Name'),
+            decoration: const InputDecoration(labelText: 'Название категории'),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('Отмена'),
             ),
             TextButton(
               onPressed: () async {
@@ -92,7 +92,7 @@ class CategoryListScreen extends StatelessWidget {
                     .replace(category.copyWith(name: nameController.text));
                 Get.back();
               },
-              child: const Text('Save'),
+              child: const Text('Сохранить'),
             ),
           ],
         );
@@ -105,20 +105,20 @@ class CategoryListScreen extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Category'),
+          title: const Text('Удалить категорию'),
           content: Text(
-              'Are you sure you want to delete category "${category.name}"?'),
+              'Вы уверены, что хотите удалить категорию "${category.name}"?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('Отмена'),
             ),
             TextButton(
               onPressed: () async {
                 await controller.deleteCategory(category.id);
                 Get.back();
               },
-              child: const Text('Delete'),
+              child: const Text('Удалить'),
             ),
           ],
         );

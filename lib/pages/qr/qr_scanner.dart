@@ -30,7 +30,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
         if (catId == -1) {
           catId = await ProductDatabase.instance.insertCategory(
             CategoryCompanion.insert(
-              name: prType ?? "Default",
+              name: prType ?? "По умолчанию",
             ),
           );
         }
@@ -49,7 +49,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
           ),
         );
       } catch (e) {
-        debugPrint('Failed to decode QR code: $e');
+        debugPrint('Не удалось сгенерировать QR-код: $e');
         return;
       }
     }
@@ -58,7 +58,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Simple scanner')),
+      appBar: AppBar(title: const Text('Сканер QR-кодов')),
       backgroundColor: Colors.black,
       body: MobileScanner(
         onDetect: _handleBarcode,

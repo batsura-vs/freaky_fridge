@@ -67,7 +67,7 @@ class QrProductWidget extends StatelessWidget {
                 if (data == null) {
                   Get.showSnackbar(
                     const GetSnackBar(
-                      message: 'Failed to generate QR code',
+                      message: 'Не удалось сгенерировать QR-код',
                     ),
                   );
                   return;

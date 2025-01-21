@@ -22,7 +22,7 @@ class _StatsPageState extends State<StatsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product Usage Statistics'),
+        title: const Text('Статистика использования продукта'),
       ),
       body: Column(
         children: [
@@ -36,9 +36,9 @@ class _StatsPageState extends State<StatsPage> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
+                      return Center(child: Text('Ошибка: ${snapshot.error}'));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('No data available'));
+                      return const Center(child: Text('Нет доступных данных'));
                     } else {
                       return _buildChart(snapshot.data!);
                     }
@@ -73,7 +73,7 @@ class _StatsPageState extends State<StatsPage> {
               }
             },
             child:
-                Text('From: ${_startDate.toIso8601String().substring(0, 10)}'),
+                Text('От: ${_startDate.toIso8601String().substring(0, 10)}'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -91,7 +91,7 @@ class _StatsPageState extends State<StatsPage> {
                 });
               }
             },
-            child: Text('To: ${_endDate.toIso8601String().substring(0, 10)}'),
+            child: Text('К: ${_endDate.toIso8601String().substring(0, 10)}'),
           ),
         ],
       ),
