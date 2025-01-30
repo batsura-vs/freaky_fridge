@@ -1,8 +1,10 @@
 import 'package:freaky_fridge/database/database.dart';
 import 'package:get/get.dart' hide Value;
 import 'package:freaky_fridge/database/models/product.dart';
+import 'package:freaky_fridge/services/expiration_service.dart';
 
 class ProductController extends GetxController {
+  final expirationService = Get.put(ExpirationService());
   var id = (-1).obs;
   var name = ''.obs;
   var description = ''.obs;
@@ -17,7 +19,7 @@ class ProductController extends GetxController {
 
   Unit get unit => Unit.values[unitIndex.value];
   set unit(Unit value) => unitIndex.value = value.index;
-  
+
   Unit get massVolumeUnit => Unit.values[massVolumeUnitIndex.value];
   set massVolumeUnit(Unit value) => massVolumeUnitIndex.value = value.index;
 
@@ -32,6 +34,9 @@ class ProductController extends GetxController {
     unit = newProduct.unit;
     massVolumeUnit = newProduct.unit;
     nutritionFacts.value = newProduct.nutritionFacts;
+
+    // Schedule notification for the updated product
+    expirationService.scheduleProductNotification(newProduct);
   }
 
   void updateUnitFromString(String unitName) {
@@ -58,14 +63,28 @@ class ProductController extends GetxController {
     this.description.value = description;
   }
 
-  
-
   void updateManufactureDate(DateTime manufactureDate) {
     this.manufactureDate.value = manufactureDate;
   }
 
   void updateExpirationDate(DateTime expirationDate) {
     this.expirationDate.value = expirationDate;
+
+    // If this is an existing product, update its notification
+    if (id.value != -1) {
+      final product = ProductData(
+        id: id.value,
+        name: name.value,
+        description: description.value,
+        productType: categoryId.value,
+        manufactureDate: manufactureDate.value,
+        expirationDate: expirationDate,
+        massVolume: massVolume.value,
+        unit: unit,
+        nutritionFacts: nutritionFacts.value,
+      );
+      expirationService.scheduleProductNotification(product);
+    }
   }
 
   void updateMassVolume(double massVolume) {

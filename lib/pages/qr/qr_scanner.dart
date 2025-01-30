@@ -14,10 +14,49 @@ class BarcodeScannerSimple extends StatefulWidget {
   State<BarcodeScannerSimple> createState() => _BarcodeScannerSimpleState();
 }
 
-class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
+class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  bool _isScanning = true;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _showError(String message) {
+    setState(() {
+      _errorMessage = message;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
   void _handleBarcode(BarcodeCapture barcodes) async {
+    if (!_isScanning) return;
+    
     var code = barcodes.barcodes.firstOrNull;
     if (code != null && code.displayValue != null) {
+      setState(() => _isScanning = false);
+      
       try {
         final String qrData = code.displayValue!;
         final decodedBytes = base64Decode(qrData);
@@ -25,6 +64,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
         final decodedString = utf8.decode(decompressedBytes);
         final List<dynamic> productData = jsonDecode(decodedString);
         final prType = productData[1];
+        
         final categ = await AppDatabase.instance.getCategoryByName(prType);
         int catId = categ?.id ?? -1;
         if (catId == -1) {
@@ -34,6 +74,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
             ),
           );
         }
+
         Get.off(
           () => ProductPage(
             product: ProductData(
@@ -49,8 +90,8 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
           ),
         );
       } catch (e) {
-        debugPrint('Не удалось сгенерировать QR-код: $e');
-        return;
+        _showError('Неверный формат QR-кода');
+        setState(() => _isScanning = true);
       }
     }
   }
@@ -58,11 +99,217 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Сканер QR-кодов')),
-      backgroundColor: Colors.black,
-      body: MobileScanner(
-        onDetect: _handleBarcode,
+      appBar: AppBar(
+        title: const Text('Сканер QR-кодов'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          MobileScanner(
+            onDetect: _handleBarcode,
+            controller: MobileScannerController(
+              facing: CameraFacing.back,
+              torchEnabled: false,
+            ),
+          ),
+          QRScannerOverlay(
+            animationValue: _animationController.value,
+            isScanning: _isScanning,
+          ),
+          Positioned(
+            bottom: 40,
+            left: 24,
+            right: 24,
+            child: Column(
+              children: [
+                if (_errorMessage.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.error.withAlpha((255 * 0.8).toInt()),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _errorMessage,
+                      style: const TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha((255 * 0.6).toInt()),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Наведите камеру на QR-код продукта',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class QRScannerOverlay extends StatelessWidget {
+  final double animationValue;
+  final bool isScanning;
+
+  const QRScannerOverlay({
+    super.key,
+    required this.animationValue,
+    required this.isScanning,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        ColorFiltered(
+          colorFilter: ColorFilter.mode(
+            Colors.black.withAlpha((255 * 0.5).toInt()),
+            BlendMode.srcOut,
+          ),
+          child: Stack(
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.transparent,
+                  backgroundBlendMode: BlendMode.dstOut,
+                ),
+              ),
+              Center(
+                child: Container(
+                  height: 250,
+                  width: 250,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Center(
+          child: Container(
+            height: 250,
+            width: 250,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary,
+                width: 3,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Stack(
+              children: [
+                if (isScanning)
+                  Align(
+                    alignment: Alignment(0, -1 + (animationValue * 2)),
+                    child: Container(
+                      height: 2,
+                      width: 250,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 3,
+                        ),
+                        left: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 3,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 3,
+                        ),
+                        right: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 3,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 3,
+                        ),
+                        left: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 3,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 3,
+                        ),
+                        right: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 3,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -3,15 +3,17 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:freaky_fridge/database/repositories/category_repository.dart';
 import 'package:freaky_fridge/database/repositories/product_repository.dart';
 import 'package:freaky_fridge/database/repositories/transaction_repository.dart';
+import 'package:freaky_fridge/database/repositories/wish_list_repository.dart';
 import 'package:freaky_fridge/database/models/category.dart';
 import 'package:freaky_fridge/database/models/product.dart';
 import 'package:freaky_fridge/database/models/product_transaction.dart';
 import 'package:freaky_fridge/database/models/transaction_type.dart';
+import 'package:freaky_fridge/database/models/wish_list_item.dart';
 
 part 'database.g.dart';
 
 @DriftDatabase(
-  tables: [Product, Category, ProductTransaction],
+  tables: [Product, Category, ProductTransaction, WishListItem],
 )
 class AppDatabase extends _$AppDatabase {
   // Singleton instance
@@ -22,11 +24,13 @@ class AppDatabase extends _$AppDatabase {
   late final CategoryRepository categoryRepository;
   late final ProductRepository productRepository;
   late final TransactionRepository transactionRepository;
+  late final WishListRepository wishListRepository;
 
   AppDatabase._internal() : super(_openConnection()) {
     categoryRepository = CategoryRepository(this);
     productRepository = ProductRepository(this);
     transactionRepository = TransactionRepository(this);
+    wishListRepository = WishListRepository(this);
   }
 
   static QueryExecutor _openConnection() {
@@ -36,7 +40,19 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (Migrator m) async {
+          await m.createAll();
+        },
+        onUpgrade: (Migrator m, int from, int to) async {
+          if (from < 2) {
+            await m.createTable(wishListItem);
+          }
+        },
+      );
 
   // Delegate methods to repositories
   Future<List<CategoryData>> getAllCategories() =>

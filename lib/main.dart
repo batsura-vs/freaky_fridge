@@ -12,7 +12,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final expirationService = ExpirationService();
   await expirationService.init();
-  expirationService.checkExpirations();
   runApp(const MyApp());
 }
 
@@ -32,13 +31,97 @@ class MyApp extends StatelessWidget {
       ),
       tag: 'nav',
     );
+
     return GetMaterialApp(
-      title: 'Freaky Fridge Vers Z',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+      title: 'Freaky Fridge',
+      themeMode: ThemeMode.dark,
+      darkTheme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF0A0A0A),
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFF6C5CE7),
+          secondary: Color(0xFFA29BFE),
+          surface: Color(0xFF1A1A1A),
+          surfaceContainer: Color(0xFF0A0A0A),
+          error: Color(0xFFFF6B6B),
+          onSurface: Colors.white,
+          onSurfaceVariant: Colors.white,
         ),
-        useMaterial3: true,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFF1A1A1A),
+          labelStyle: const TextStyle(color: Colors.white70),
+          hintStyle: const TextStyle(color: Colors.white60),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF6C5CE7), width: 2),
+          ),
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          height: 65,
+          backgroundColor: const Color(0xFF1A1A1A),
+          indicatorColor: const Color(0xFF6C5CE7).withAlpha((255 * 0.2).toInt()),
+        ),
+        cardTheme: CardTheme(
+          color: const Color(0xFF1A1A1A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 0,
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Color(0xFF6C5CE7),
+          foregroundColor: Colors.white,
+        ),
+        textTheme: const TextTheme(
+          headlineLarge: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          headlineMedium: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          titleLarge: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+          bodyLarge: TextStyle(
+            fontSize: 16,
+            color: Colors.white70,
+          ),
+          bodyMedium: TextStyle(
+            fontSize: 14,
+            color: Colors.white70,
+          ),
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white70,
+        ),
+        dropdownMenuTheme: DropdownMenuThemeData(
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: const Color(0xFF1A1A1A),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+            ),
+          ),
+          menuStyle: MenuStyle(
+            backgroundColor: WidgetStateProperty.all(const Color(0xFF1A1A1A)),
+            surfaceTintColor: WidgetStateProperty.all(Colors.transparent),
+          ),
+        ),
       ),
       home: AppEntrypoint(),
     );

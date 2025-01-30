@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:freaky_fridge/database/database.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class ExpirationService extends GetxService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -17,7 +19,11 @@ class ExpirationService extends GetxService {
     importance: Importance.max,
     priority: Priority.high,
   );
+
   Future<void> init() async {
+    // Initialize timezone database
+    tz.initializeTimeZones();
+    
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     flutterLocalNotificationsPlugin
@@ -32,6 +38,9 @@ class ExpirationService extends GetxService {
       initializationSettings,
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
     );
+
+    // Schedule notifications for existing products
+    await scheduleAllProductNotifications();
   }
 
   void onDidReceiveNotificationResponse(
@@ -42,22 +51,42 @@ class ExpirationService extends GetxService {
     }
   }
 
-  Future<void> checkExpirations() async {
+  Future<void> scheduleAllProductNotifications() async {
     final products = await database.allProducts;
+    
+    // Cancel all existing notifications first
+    await flutterLocalNotificationsPlugin.cancelAll();
+    
+    // Schedule new notifications for each product
+    for (final product in products) {
+      await scheduleProductNotification(product);
+    }
+  }
+
+  Future<void> scheduleProductNotification(ProductData product) async {
+    // Calculate notification time (1 day before expiration)
+    final notificationTime = product.expirationDate.subtract(const Duration(days: 1));
     final now = DateTime.now();
 
-    for (final product in products) {
-      final difference = product.expirationDate.difference(now);
-      if (difference.inDays <= 2 && difference.inDays >= 0) {
-        NotificationDetails notificationDetails =
-            NotificationDetails(android: androidNotificationDetails);
-        await flutterLocalNotificationsPlugin.show(
-          product.id,
-          'Срок годности истекает!',
-          'Срок годности "${product.name}" истекает через ${difference.inDays}д!',
-          notificationDetails,
-        );
-      }
+    // Only schedule if the notification time is in the future
+    if (notificationTime.isAfter(now)) {
+      NotificationDetails notificationDetails =
+          NotificationDetails(android: androidNotificationDetails);
+
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        product.id,
+        'Срок годности истекает!',
+        'Срок годности "${product.name}" истекает завтра!',
+        tz.TZDateTime.from(notificationTime, tz.local),
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
     }
+  }
+
+  Future<void> cancelProductNotification(int productId) async {
+    await flutterLocalNotificationsPlugin.cancel(productId);
   }
 }

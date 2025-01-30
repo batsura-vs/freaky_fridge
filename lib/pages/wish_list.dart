@@ -34,8 +34,8 @@ class WishList extends StatelessWidget {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                wishController.removeFromWishList(
+              onPressed: () async {
+                await wishController.removeFromWishList(
                   wishController.wishList[index].product,
                 );
                 Get.back();
@@ -43,8 +43,8 @@ class WishList extends StatelessWidget {
               child: const Text('Удалить'),
             ),
             TextButton(
-              onPressed: () {
-                wishController.updateQuantity(
+              onPressed: () async {
+                await wishController.updateQuantity(
                   wishController.wishList[index].product,
                   wishController.quantity.value,
                 );
@@ -76,7 +76,7 @@ class WishList extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: FutureBuilder(
-                      future: AppDatabase.instance.allProducts,
+                      future: AppDatabase.instance.productRepository.getAllProducts(),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
                           return const Center(
@@ -111,11 +111,11 @@ class WishList extends StatelessWidget {
                                 suggestions.add(
                                   ListTile(
                                     title: Text(product.name),
-                                    onTap: () {
+                                    onTap: () async {
                                       controller.closeView(null);
                                       wishController
                                           .updateSearchQuery(product.name);
-                                      wishController.addToWishList(
+                                      await wishController.addToWishList(
                                         product,
                                         1,
                                       );

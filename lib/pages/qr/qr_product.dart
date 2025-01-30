@@ -23,7 +23,7 @@ class QrProductWidget extends StatelessWidget {
             return Center(child: Text(snapshot.error.toString()));
           }
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: _QrPlaceholder());
           }
           final category = snapshot.data!;
           final productData = [
@@ -42,40 +42,131 @@ class QrProductWidget extends StatelessWidget {
             version: QrVersions.auto,
           );
           return Scaffold(
-            appBar: AppBar(title: Text(product.name)),
-            body: Center(
-              child: FutureBuilder(
-                future: painter.toImageData(300),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return SizedBox(
-                      width: 300,
-                      height: 300,
-                      child: Image.memory(
-                        snapshot.data!.buffer.asUint8List(),
+            appBar: AppBar(
+              title: Text(product.name),
+              elevation: 0,
+            ),
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'Scan this QR code to import product details',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
                       ),
-                    );
-                  }
-                  return const Center(child: CircularProgressIndicator());
-                },
+                    ),
+                    const SizedBox(height: 24),
+                    Center(
+                      child: Hero(
+                        tag: 'qr_code',
+                        child: Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => _FullscreenQR(
+                                    painter: painter,
+                                    productName: product.name,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: FutureBuilder(
+                                future: painter.toImageData(
+                                  MediaQuery.of(context).size.width * 0.7,
+                                ),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    return AspectRatio(
+                                      aspectRatio: 1,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Image.memory(
+                                          snapshot.data!.buffer.asUint8List(),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  return const AspectRatio(
+                                    aspectRatio: 1,
+                                    child: _QrPlaceholder(),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Tap to view fullscreen',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Card(
+                      elevation: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildInfoRow('Category', category.name),
+                            const Divider(),
+                            _buildInfoRow('Amount', '${product.massVolume} ${product.unit.name}'),
+                            const Divider(),
+                            _buildInfoRow('Manufactured', _formatDate(product.manufactureDate)),
+                            const Divider(),
+                            _buildInfoRow('Expires', _formatDate(product.expirationDate)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            floatingActionButton: FloatingActionButton(
-              child: const Icon(Icons.share),
+            floatingActionButton: FloatingActionButton.extended(
+              icon: const Icon(Icons.share),
+              label: const Text('Share QR Code'),
               onPressed: () async {
                 var data = await painter.toImageData(600);
                 if (data == null) {
                   Get.showSnackbar(
                     const GetSnackBar(
-                      message: 'Не удалось сгенерировать QR-код',
+                      message: 'Failed to generate QR code',
+                      duration: Duration(seconds: 2),
                     ),
                   );
                   return;
                 }
                 Share.shareXFiles(
                   [
-                    XFile.fromData(data.buffer.asUint8List(),
-                        mimeType: 'image/png'),
+                    XFile.fromData(
+                      data.buffer.asUint8List(),
+                      mimeType: 'image/png',
+                    ),
                   ],
                   fileNameOverrides: ['qr.png'],
                 );
@@ -85,5 +176,215 @@ class QrProductWidget extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+}
+
+class _FullscreenQR extends StatelessWidget {
+  final QrPainter painter;
+  final String productName;
+
+  const _FullscreenQR({
+    required this.painter,
+    required this.productName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(productName),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: Center(
+        child: Hero(
+          tag: 'qr_code',
+          child: Card(
+            margin: const EdgeInsets.all(24),
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: FutureBuilder(
+                future: painter.toImageData(
+                  MediaQuery.of(context).size.width * 0.8,
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return AspectRatio(
+                      aspectRatio: 1,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Image.memory(
+                          snapshot.data!.buffer.asUint8List(),
+                        ),
+                      ),
+                    );
+                  }
+                  return const AspectRatio(
+                    aspectRatio: 1,
+                    child: _QrPlaceholder(),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _QrPlaceholder extends StatefulWidget {
+  const _QrPlaceholder();
+
+  @override
+  State<_QrPlaceholder> createState() => _QrPlaceholderState();
+}
+
+class _QrPlaceholderState extends State<_QrPlaceholder> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+    
+    _animation = Tween<double>(
+      begin: 0.5,
+      end: 0.8,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          return CustomPaint(
+            painter: _QrPlaceholderPainter(
+              opacity: _animation.value,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _QrPlaceholderPainter extends CustomPainter {
+  final double opacity;
+
+  _QrPlaceholderPainter({required this.opacity});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.withAlpha((255 * opacity).toInt())
+      ..style = PaintingStyle.fill;
+
+    final cellSize = size.width / 7;
+    
+    // Draw corner squares
+    _drawCornerSquare(canvas, paint, 0, 0, cellSize);
+    _drawCornerSquare(canvas, paint, size.width - 3 * cellSize, 0, cellSize);
+    _drawCornerSquare(canvas, paint, 0, size.height - 3 * cellSize, cellSize);
+    
+    // Draw some random squares to simulate QR code pattern
+    final random = [
+      [2, 2], [4, 1], [1, 4], [3, 3], [5, 2], [2, 5], [4, 4]
+    ];
+    
+    for (final pos in random) {
+      canvas.drawRect(
+        Rect.fromLTWH(
+          pos[0] * cellSize,
+          pos[1] * cellSize,
+          cellSize,
+          cellSize,
+        ),
+        paint,
+      );
+    }
+  }
+
+  void _drawCornerSquare(Canvas canvas, Paint paint, double x, double y, double cellSize) {
+    canvas.drawRect(
+      Rect.fromLTWH(x, y, cellSize * 3, cellSize * 3),
+      paint,
+    );
+    canvas.drawRect(
+      Rect.fromLTWH(x + cellSize * 0.5, y + cellSize * 0.5, cellSize * 2, cellSize * 2),
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill,
+    );
+    canvas.drawRect(
+      Rect.fromLTWH(x + cellSize, y + cellSize, cellSize, cellSize),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _QrPlaceholderPainter oldDelegate) {
+    return opacity != oldDelegate.opacity;
   }
 }

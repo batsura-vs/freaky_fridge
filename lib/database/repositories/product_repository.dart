@@ -11,6 +11,13 @@ class ProductRepository {
   
   Stream<List<ProductData>> watchAllProducts() => _db.select(_db.product).watch();
 
+  Future<ProductData?> getProductById(int id) async {
+    final query = _db.select(_db.product)..where((tbl) => tbl.id.equals(id));
+    final results = await query.get();
+    if (results.isEmpty) return null;
+    return results.first;
+  }
+
   Future<int> insertProduct(ProductCompanion prod) async {
     final id = await _db.into(_db.product).insert(prod);
     await _db.transactionRepository.insertProductTransaction(

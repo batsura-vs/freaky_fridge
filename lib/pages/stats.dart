@@ -72,8 +72,7 @@ class _StatsPageState extends State<StatsPage> {
                 });
               }
             },
-            child:
-                Text('От: ${_startDate.toIso8601String().substring(0, 10)}'),
+            child: Text('От: ${_startDate.toIso8601String().substring(0, 10)}'),
           ),
           ElevatedButton(
             onPressed: () async {

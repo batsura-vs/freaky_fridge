@@ -27,9 +27,30 @@ class ProductsPage extends StatelessWidget {
                 maxHeight: 300.0,
               ),
               builder: (context, controller) => SearchBar(
-                elevation: const WidgetStatePropertyAll(0),
-                leading: const Icon(Icons.search),
-                hintText: "Поиск",
+                elevation: const WidgetStatePropertyAll(2),
+                backgroundColor: WidgetStatePropertyAll(Theme.of(context).cardColor),
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                padding: const WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(horizontal: 16.0),
+                ),
+                leading: const Icon(
+                  Icons.search,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                hintText: "Поиск продуктов",
+                hintStyle: WidgetStatePropertyAll(
+                  TextStyle(
+                    color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha((255 * 0.5).toInt()),
+                  ),
+                ),
+                textStyle: WidgetStatePropertyAll(
+                  Theme.of(context).textTheme.bodyMedium,
+                ),
                 controller: controller,
                 onTap: () => controller.openView(),
                 onSubmitted: (value) {
@@ -46,7 +67,11 @@ class ProductsPage extends StatelessWidget {
                 },
                 trailing: [
                   IconButton(
-                    icon: const Icon(Icons.add),
+                    icon: const Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                     onPressed: () => Get.to(
                       () => ProductPage(),
                     ),
@@ -96,63 +121,151 @@ class ProductsPage extends StatelessWidget {
                       return ListView.builder(
                         key: UniqueKey(),
                         itemCount: filteredProducts.length,
-                        itemBuilder: (context, index) => Card(
-                          child: ListTile(
-                            title: Text(filteredProducts[index].name),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Изготовлен: ${DateFormat('yyyy-MM-dd').format(filteredProducts[index].manufactureDate)}',
-                                ),
-                                Text(
-                                  'Истекает: ${DateFormat('yyyy-MM-dd').format(filteredProducts[index].expirationDate)}',
-                                ),
-                                Text(
-                                  'Масса/объем: ${filteredProducts[index].massVolume} ${switch (filteredProducts[index].unit) {
-                                    Unit.grams => "Г",
-                                    Unit.kilograms => "Кг",
-                                    Unit.milliliters => "Мл",
-                                    Unit.liters => "Л",
-                                    Unit.pieces => "Ш",
-                                  }}',
-                                ),
-                              ],
+                        itemBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                          child: Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            onTap: () => Get.to(
-                              () => ProductPage(
-                                product: filteredProducts[index],
+                            clipBehavior: Clip.antiAlias,
+                            child: InkWell(
+                              splashColor: Colors.white.withAlpha((255 * 0.1).toInt()),
+                              highlightColor: Colors.white.withAlpha((255 * 0.05).toInt()),
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () => Get.to(
+                                () => ProductPage(
+                                  product: filteredProducts[index],
+                                ),
                               ),
-                            ),
-                            onLongPress: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: Text(filteredProducts[index].name),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Пищевая ценность: ${filteredProducts[index].nutritionFacts}',
+                              onLongPress: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(
+                                      filteredProducts[index].name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    backgroundColor: Theme.of(context).cardColor,
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Пищевая ценность:',
+                                          style: TextStyle(
+                                            color: Theme.of(context).primaryColor,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          filteredProducts[index].nutritionFacts,
+                                          style: Theme.of(context).textTheme.bodyMedium,
+                                        ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Закрыть'),
                                       ),
                                     ],
                                   ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Закрыть'),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            filteredProducts[index].name,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.calendar_today,
+                                                size: 20,
+                                                color: Colors.white70,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'Изготовлен: ${DateFormat('dd.MM.yyyy').format(filteredProducts[index].manufactureDate)}',
+                                                style: const TextStyle(
+                                                  color: Colors.white70,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.event,
+                                                size: 20,
+                                                color: Colors.white70,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'Истекает: ${DateFormat('dd.MM.yyyy').format(filteredProducts[index].expirationDate)}',
+                                                style: const TextStyle(
+                                                  color: Colors.white70,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.scale,
+                                                size: 20,
+                                                color: Colors.white70,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'Масса/объем: ${filteredProducts[index].massVolume} ${switch (filteredProducts[index].unit) {
+                                                  Unit.grams => "г",
+                                                  Unit.kilograms => "кг",
+                                                  Unit.milliliters => "мл",
+                                                  Unit.liters => "л",
+                                                  Unit.pieces => "шт",
+                                                }}',
+                                                style: const TextStyle(
+                                                  color: Colors.white70,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.qr_code,
+                                        color: Colors.white,
+                                        size: 24,
+                                      ),
+                                      onPressed: () => Get.to(
+                                        () => QrProductWidget(
+                                          product: filteredProducts[index],
+                                        ),
+                                      ),
                                     ),
                                   ],
-                                ),
-                              );
-                            },
-                            trailing: IconButton(
-                              icon: const Icon(Icons.qr_code),
-                              onPressed: () => Get.to(
-                                () => QrProductWidget(
-                                  product: filteredProducts[index],
                                 ),
                               ),
                             ),
@@ -161,11 +274,39 @@ class ProductsPage extends StatelessWidget {
                       );
                     })
                   : const Center(
-                      child: Text(
-                        "Продуктов пока нет. Пожалуйста, добавьте что-нибудь.",
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.no_food,
+                            size: 64,
+                            color: Colors.white30,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            "Продуктов пока нет",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white70,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            "Пожалуйста, добавьте что-нибудь",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white54,
+                            ),
+                          ),
+                        ],
                       ),
                     )
-              : const Center(child: CircularProgressIndicator()),
+              : const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white70,
+                  ),
+                ),
         ),
       ),
     );

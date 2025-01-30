@@ -14,7 +14,7 @@ class CategoryRepository {
   Future<CategoryData> getCategoryById(int id) async {
     return await (_db.select(_db.category)..where((tbl) => tbl.id.equals(id)))
             .getSingleOrNull() ??
-        const CategoryData(id: -1, name: "Default");
+        const CategoryData(id: -1, name: "Default", color: 0xFF000000);
   }
 
   Future<CategoryData?> getCategoryByName(String name) async {
