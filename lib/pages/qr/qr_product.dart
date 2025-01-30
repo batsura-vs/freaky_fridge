@@ -85,7 +85,7 @@ class QrProductWidget extends StatelessWidget {
                               padding: const EdgeInsets.all(16.0),
                               child: FutureBuilder(
                                 future: painter.toImageData(
-                                  MediaQuery.of(context).size.width * 0.7,
+                                  MediaQuery.of(context).size.width * 0.75,
                                 ),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
@@ -94,7 +94,8 @@ class QrProductWidget extends StatelessWidget {
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: Colors.white,
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         child: Image.memory(
                                           snapshot.data!.buffer.asUint8List(),
@@ -134,11 +135,14 @@ class QrProductWidget extends StatelessWidget {
                           children: [
                             _buildInfoRow('Category', category.name),
                             const Divider(),
-                            _buildInfoRow('Amount', '${product.massVolume} ${product.unit.name}'),
+                            _buildInfoRow('Amount',
+                                '${product.massVolume} ${product.unit.name}'),
                             const Divider(),
-                            _buildInfoRow('Manufactured', _formatDate(product.manufactureDate)),
+                            _buildInfoRow('Manufactured',
+                                _formatDate(product.manufactureDate)),
                             const Divider(),
-                            _buildInfoRow('Expires', _formatDate(product.expirationDate)),
+                            _buildInfoRow(
+                                'Expires', _formatDate(product.expirationDate)),
                           ],
                         ),
                       ),
@@ -239,33 +243,33 @@ class _FullscreenQR extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: FutureBuilder(
-                future: painter.toImageData(
-                  MediaQuery.of(context).size.width * 0.8,
-                ),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return AspectRatio(
-                      aspectRatio: 1,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+            child: FutureBuilder(
+              future: painter.toImageData(
+                MediaQuery.of(context).size.width,
+              ),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return AspectRatio(
+                    aspectRatio: 1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
                         child: Image.memory(
                           snapshot.data!.buffer.asUint8List(),
                         ),
                       ),
-                    );
-                  }
-                  return const AspectRatio(
-                    aspectRatio: 1,
-                    child: _QrPlaceholder(),
+                    ),
                   );
-                },
-              ),
+                }
+                return const AspectRatio(
+                  aspectRatio: 1,
+                  child: _QrPlaceholder(),
+                );
+              },
             ),
           ),
         ),
@@ -281,7 +285,8 @@ class _QrPlaceholder extends StatefulWidget {
   State<_QrPlaceholder> createState() => _QrPlaceholderState();
 }
 
-class _QrPlaceholderState extends State<_QrPlaceholder> with SingleTickerProviderStateMixin {
+class _QrPlaceholderState extends State<_QrPlaceholder>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _animation;
 
@@ -292,7 +297,7 @@ class _QrPlaceholderState extends State<_QrPlaceholder> with SingleTickerProvide
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
-    
+
     _animation = Tween<double>(
       begin: 0.5,
       end: 0.8,
@@ -342,17 +347,23 @@ class _QrPlaceholderPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final cellSize = size.width / 7;
-    
+
     // Draw corner squares
     _drawCornerSquare(canvas, paint, 0, 0, cellSize);
     _drawCornerSquare(canvas, paint, size.width - 3 * cellSize, 0, cellSize);
     _drawCornerSquare(canvas, paint, 0, size.height - 3 * cellSize, cellSize);
-    
+
     // Draw some random squares to simulate QR code pattern
     final random = [
-      [2, 2], [4, 1], [1, 4], [3, 3], [5, 2], [2, 5], [4, 4]
+      [2, 2],
+      [4, 1],
+      [1, 4],
+      [3, 3],
+      [5, 2],
+      [2, 5],
+      [4, 4]
     ];
-    
+
     for (final pos in random) {
       canvas.drawRect(
         Rect.fromLTWH(
@@ -366,13 +377,15 @@ class _QrPlaceholderPainter extends CustomPainter {
     }
   }
 
-  void _drawCornerSquare(Canvas canvas, Paint paint, double x, double y, double cellSize) {
+  void _drawCornerSquare(
+      Canvas canvas, Paint paint, double x, double y, double cellSize) {
     canvas.drawRect(
       Rect.fromLTWH(x, y, cellSize * 3, cellSize * 3),
       paint,
     );
     canvas.drawRect(
-      Rect.fromLTWH(x + cellSize * 0.5, y + cellSize * 0.5, cellSize * 2, cellSize * 2),
+      Rect.fromLTWH(
+          x + cellSize * 0.5, y + cellSize * 0.5, cellSize * 2, cellSize * 2),
       Paint()
         ..color = Colors.white
         ..style = PaintingStyle.fill,
