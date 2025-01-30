@@ -15,7 +15,7 @@ class _StatsPageState extends State<StatsPage> {
   DateTime _endDate = DateTime.now();
   bool _isLoading = false;
   String _selectedUnitType = 'weight'; // 'weight', 'volume', or 'pieces'
-  String? _selectedProduct;
+  String? _selectedProductName;
   Future<Map<DateTime, Map<String, Map<String, dynamic>>>>? _dataFuture;
 
   final Map<String, String> _unitLabels = {
@@ -36,7 +36,7 @@ class _StatsPageState extends State<StatsPage> {
       _dataFuture = AppDatabase.instance.getProductTransactionsForPeriod(
         _startDate,
         _endDate,
-        productId: null,
+        productName: _selectedProductName,
       );
     });
     await _dataFuture;
@@ -60,7 +60,7 @@ class _StatsPageState extends State<StatsPage> {
           // Create temporary variables to hold the new filter values
           DateTime tempStartDate = _startDate;
           DateTime tempEndDate = _endDate;
-          String? tempSelectedProduct = _selectedProduct;
+          String? tempSelectedProductName = _selectedProductName;
           String tempSelectedUnitType = _selectedUnitType;
 
           return StatefulBuilder(
@@ -102,9 +102,11 @@ class _StatsPageState extends State<StatsPage> {
                         },
                       ),
                       _buildProductPicker(
-                        tempSelectedProduct: tempSelectedProduct,
-                        onProductChanged: (product) {
-                          setState(() => tempSelectedProduct = product);
+                        tempSelectedProductName: tempSelectedProductName,
+                        onProductChanged: (name) {
+                          setState(() {
+                            tempSelectedProductName = name;
+                          });
                         },
                       ),
                       _buildUnitTypePicker(
@@ -121,7 +123,7 @@ class _StatsPageState extends State<StatsPage> {
                             this.setState(() {
                               _startDate = tempStartDate;
                               _endDate = tempEndDate;
-                              _selectedProduct = tempSelectedProduct;
+                              _selectedProductName = tempSelectedProductName;
                               _selectedUnitType = tempSelectedUnitType;
                             });
                             _refreshData();
@@ -186,7 +188,7 @@ class _StatsPageState extends State<StatsPage> {
                           DateFormat('dd.MM.yyyy').format(_endDate),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                        if (_selectedProduct != null) ...[
+                        if (_selectedProductName != null) ...[
                           const SizedBox(width: 16),
                           Icon(
                             Icons.shopping_basket,
@@ -196,7 +198,7 @@ class _StatsPageState extends State<StatsPage> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              _selectedProduct!,
+                              _selectedProductName!,
                               style: Theme.of(context).textTheme.bodyMedium,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -431,7 +433,7 @@ class _StatsPageState extends State<StatsPage> {
   }
 
   Widget _buildProductPicker({
-    required String? tempSelectedProduct,
+    required String? tempSelectedProductName,
     required Function(String?) onProductChanged,
   }) {
     return Card(
@@ -459,7 +461,7 @@ class _StatsPageState extends State<StatsPage> {
                 final historicalProducts = historicalProductsSnapshot.data!;
 
                 return DropdownButtonFormField<String?>(
-                  value: tempSelectedProduct,
+                  value: tempSelectedProductName,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     contentPadding:
@@ -551,7 +553,7 @@ class _StatsPageState extends State<StatsPage> {
     };
 
     final String titleSuffix =
-        _selectedProduct != null ? ' - $_selectedProduct' : '';
+        _selectedProductName != null ? ' - $_selectedProductName' : '';
 
     return Column(
       children: [

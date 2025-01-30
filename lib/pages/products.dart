@@ -235,49 +235,12 @@ class ProductsPage extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          splashColor: Colors.white..withAlpha((255 * 0.1).toInt()),
-          highlightColor: Colors.white..withAlpha((255 * 0.05).toInt()),
+          splashColor: Colors.white.withAlpha((255 * 0.1).toInt()),
+          highlightColor: Colors.white.withAlpha((255 * 0.05).toInt()),
           borderRadius: BorderRadius.circular(12),
           onTap: () => Get.to(() => ProductPage(product: product)),
-          onLongPress: () => _showNutritionDialog(context, product),
           child: _buildProductCardContent(product),
         ),
-      ),
-    );
-  }
-
-  void _showNutritionDialog(BuildContext context, ProductData product) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          product.name,
-          style:
-              const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        backgroundColor: Theme.of(context).cardColor,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Пищевая ценность:',
-              style: TextStyle(
-                color: Theme.of(context).primaryColor,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(product.nutritionFacts,
-                style: Theme.of(context).textTheme.bodyMedium),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Закрыть'),
-          ),
-        ],
       ),
     );
   }

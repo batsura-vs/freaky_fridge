@@ -89,10 +89,10 @@ class AppDatabase extends _$AppDatabase {
       transactionRepository.watchAllProductTransactions();
   Future<Map<DateTime, Map<String, Map<String, dynamic>>>>
       getProductTransactionsForPeriod(DateTime startDate, DateTime endDate,
-              {int? productId}) =>
+              {String? productName}) =>
           transactionRepository.getProductTransactionsForPeriod(
               startDate, endDate,
-              productId: productId);
+              productName: productName);
 
   Future<List<Map<String, dynamic>>> getUniqueProductsWithTransactions(
     DateTime startDate,

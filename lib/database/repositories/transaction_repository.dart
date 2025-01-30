@@ -104,15 +104,15 @@ class TransactionRepository {
   Future<Map<DateTime, Map<String, Map<String, dynamic>>>> getProductTransactionsForPeriod(
     DateTime startDate,
     DateTime endDate, {
-    int? productId,
+    String? productName,
   }) async {
     final query = _db.select(_db.productTransaction)
       ..where((t) =>
           t.transactionDate.isBiggerOrEqualValue(startDate) &
           t.transactionDate.isSmallerOrEqualValue(endDate));
     
-    if (productId != null) {
-      query.where((t) => t.productId.equals(productId));
+    if (productName != null) {
+      query.where((t) => t.productName.equals(productName));
     }
 
     final transactions = await query.get();

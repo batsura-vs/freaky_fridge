@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 class WishList extends StatelessWidget {
   final wishController = Get.put(WishListController());
   final _textController = TextEditingController();
-  
+
   WishList({super.key});
 
   void _showModalBottomSheet(BuildContext context, int index) {
@@ -23,7 +23,8 @@ class WishList extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
               boxShadow: const [
                 BoxShadow(
                   color: Colors.black,
@@ -86,9 +87,13 @@ class WishList extends StatelessWidget {
                   Container(
                     height: 56,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor.withAlpha((255 * 0.3).toInt()),
+                      color: Theme.of(context)
+                          .cardColor
+                          .withAlpha((255 * 0.3).toInt()),
                       border: Border.all(
-                        color: Theme.of(context).dividerColor.withAlpha((255 * 0.1).toInt()),
+                        color: Theme.of(context)
+                            .dividerColor
+                            .withAlpha((255 * 0.1).toInt()),
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -119,17 +124,46 @@ class WishList extends StatelessWidget {
                               decoration: BoxDecoration(
                                 border: Border.symmetric(
                                   vertical: BorderSide(
-                                    color: Theme.of(context).dividerColor.withAlpha((255 * 0.1).toInt()),
+                                    color: Theme.of(context)
+                                        .dividerColor
+                                        .withAlpha((255 * 0.1).toInt()),
                                   ),
                                 ),
                               ),
                               child: Center(
-                                child: Obx(() => Text(
-                                  '${wishController.quantity.value}',
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )),
+                                child: Obx(() => TextField(
+                                      textAlign: TextAlign.center,
+                                      keyboardType: TextInputType.number,
+                                      controller: TextEditingController(
+                                        text:
+                                            '${wishController.quantity.value}',
+                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                      decoration: const InputDecoration(
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.zero,
+                                        fillColor: Colors.transparent,
+                                        filled: false,
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide.none,
+                                        ),
+                                      ),
+                                      onChanged: (value) {
+                                        final newValue = int.tryParse(value);
+                                        if (newValue != null && newValue > 0) {
+                                          wishController.quantity.value =
+                                              newValue;
+                                        }
+                                      },
+                                    )),
                               ),
                             ),
                           ),
@@ -238,6 +272,15 @@ class WishList extends StatelessWidget {
     );
   }
 
+  void _addItem() {
+    final value = _textController.text.trim();
+    if (value.isNotEmpty) {
+      wishController.addToWishList(value, 1);
+      _textController.clear();
+      _showSnackBar('Продукт добавлен');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -258,20 +301,20 @@ class WishList extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: 'Добавить продукт',
                   filled: true,
-                  fillColor: Theme.of(context).cardColor.withAlpha((255 * 0.3).toInt()),
+                  fillColor: Theme.of(context)
+                      .cardColor
+                      .withAlpha((255 * 0.3).toInt()),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  prefixIcon: const Icon(Icons.add),
+                  prefixIcon: IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () => _addItem(),
+                  ),
+                  suffixIcon: null,
                 ),
-                onSubmitted: (value) {
-                  if (value.isNotEmpty) {
-                    wishController.addToWishList(value, 1);
-                    _textController.clear();
-                    _showSnackBar('Продукт добавлен');
-                  }
-                },
+                onSubmitted: (value) => _addItem(),
               ),
             ),
           ),
@@ -286,7 +329,10 @@ class WishList extends StatelessWidget {
                       Icon(
                         Icons.shopping_cart_outlined,
                         size: 64,
-                        color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).toInt()),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withAlpha((255 * 0.5).toInt()),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -311,9 +357,10 @@ class WishList extends StatelessWidget {
             return SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  final item = wishController.wishList[index];
+                  final item = wishController.sortedWishList[index];
                   return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
                       onTap: () => _showModalBottomSheet(context, index),
@@ -321,17 +368,44 @@ class WishList extends StatelessWidget {
                         padding: const EdgeInsets.all(16),
                         child: Row(
                           children: [
+                            Checkbox(
+                              value: item.isChecked,
+                              onChanged: (bool? value) {
+                                wishController.toggleItemChecked(item.id);
+                              },
+                            ),
                             Expanded(
                               child: Text(
                                 item.productName,
-                                style: Theme.of(context).textTheme.titleMedium,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      decoration: item.isChecked
+                                          ? TextDecoration.lineThrough
+                                          : null,
+                                      color: item.isChecked
+                                          ? Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.color
+                                              ?.withAlpha((255 * 0.5).toInt())
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.color,
+                                    ),
                               ),
                             ),
                             const SizedBox(width: 16),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.1).toInt()),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withAlpha((255 * 0.1).toInt()),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Text(
@@ -348,7 +422,7 @@ class WishList extends StatelessWidget {
                     ),
                   );
                 },
-                childCount: wishController.wishList.length,
+                childCount: wishController.sortedWishList.length,
               ),
             );
           }),
