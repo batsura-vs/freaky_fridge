@@ -1,4 +1,5 @@
 import 'package:freaky_fridge/database/database.dart';
+import 'package:drift/drift.dart';
 
 class WishListRepository {
   final AppDatabase _db;
@@ -15,8 +16,8 @@ class WishListRepository {
 
   Future<bool> updateWishListItem(WishListItemCompanion item) async {
     return await (_db.update(_db.wishListItem)
-          ..where((tbl) => tbl.id.equals(item.id.value)))
-        .write(item) >
+              ..where((tbl) => tbl.id.equals(item.id.value)))
+            .write(item) >
         0;
   }
 
@@ -34,11 +35,21 @@ class WishListRepository {
     return (_db.select(_db.wishListItem)).watch();
   }
 
-  Future<WishListItemData?> getWishListItemByProductId(int productId) async {
+  Future<WishListItemData?> getWishListItemByProductName(
+      String productName) async {
     final query = _db.select(_db.wishListItem)
-      ..where((tbl) => tbl.productId.equals(productId));
+      ..where((tbl) => tbl.productName.equals(productName));
     final results = await query.get();
     if (results.isEmpty) return null;
     return results.first;
   }
-} 
+
+  Future<bool> toggleItemChecked(int id) async {
+    final item = await (_db.select(_db.wishListItem)
+          ..where((tbl) => tbl.id.equals(id)))
+        .getSingle();
+    await (_db.update(_db.wishListItem)..where((tbl) => tbl.id.equals(id)))
+        .write(WishListItemCompanion(isChecked: Value(!item.isChecked)));
+    return !item.isChecked;
+  }
+}

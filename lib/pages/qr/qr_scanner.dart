@@ -24,7 +24,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
   }
@@ -115,7 +115,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple>
             ),
           ),
           QRScannerOverlay(
-            animationValue: _animationController.value,
+            controller: _animationController,
             isScanning: _isScanning,
           ),
           Positioned(
@@ -164,12 +164,12 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple>
 }
 
 class QRScannerOverlay extends StatelessWidget {
-  final double animationValue;
+  final AnimationController controller;
   final bool isScanning;
 
   const QRScannerOverlay({
     super.key,
-    required this.animationValue,
+    required this.controller,
     required this.isScanning,
   });
 
@@ -177,53 +177,34 @@ class QRScannerOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        ColorFiltered(
-          colorFilter: ColorFilter.mode(
-            Colors.black.withAlpha((255 * 0.5).toInt()),
-            BlendMode.srcOut,
-          ),
-          child: Stack(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.transparent,
-                  backgroundBlendMode: BlendMode.dstOut,
-                ),
-              ),
-              Center(
-                child: Container(
-                  height: 250,
-                  width: 250,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
         Center(
-          child: Container(
+          child: SizedBox(
             height: 250,
             width: 250,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).colorScheme.primary,
-                width: 3,
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
             child: Stack(
               children: [
                 if (isScanning)
-                  Align(
-                    alignment: Alignment(0, -1 + (animationValue * 2)),
-                    child: Container(
-                      height: 2,
-                      width: 250,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                  AnimatedBuilder(
+                    animation: controller,
+                    builder: (context, child) {
+                      return Align(
+                        alignment: Alignment(0, -1 + (controller.value * 2)),
+                        child: Container(
+                          height: 3,
+                          width: 250,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.5).toInt()),
+                                blurRadius: 12,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 Positioned(
                   left: 0,

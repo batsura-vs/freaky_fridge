@@ -3,7 +3,7 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class $CategoryTable extends Category
+class $CategoryTable extends app_models.Category
     with TableInfo<$CategoryTable, CategoryData> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -719,6 +719,12 @@ class $ProductTransactionTable extends ProductTransaction
   late final GeneratedColumn<String> productName = GeneratedColumn<String>(
       'product_name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _categoryNameMeta =
+      const VerificationMeta('categoryName');
+  @override
+  late final GeneratedColumn<String> categoryName = GeneratedColumn<String>(
+      'category_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _transactionDateMeta =
       const VerificationMeta('transactionDate');
   @override
@@ -728,9 +734,20 @@ class $ProductTransactionTable extends ProductTransaction
   static const VerificationMeta _quantityMeta =
       const VerificationMeta('quantity');
   @override
-  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+  late final GeneratedColumn<double> quantity = GeneratedColumn<double>(
       'quantity', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<int> unit = GeneratedColumn<int>(
+      'unit', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _normalizedQuantityMeta =
+      const VerificationMeta('normalizedQuantity');
+  @override
+  late final GeneratedColumn<double> normalizedQuantity =
+      GeneratedColumn<double>('normalized_quantity', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumnWithTypeConverter<TransactionType, String> type =
@@ -738,9 +755,27 @@ class $ProductTransactionTable extends ProductTransaction
               type: DriftSqlType.string, requiredDuringInsert: true)
           .withConverter<TransactionType>(
               $ProductTransactionTable.$convertertype);
+  static const VerificationMeta _productIdMeta =
+      const VerificationMeta('productId');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, productName, transactionDate, quantity, type];
+  late final GeneratedColumn<int> productId = GeneratedColumn<int>(
+      'product_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES product (id)'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        productName,
+        categoryName,
+        transactionDate,
+        quantity,
+        unit,
+        normalizedQuantity,
+        type,
+        productId
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -763,6 +798,14 @@ class $ProductTransactionTable extends ProductTransaction
     } else if (isInserting) {
       context.missing(_productNameMeta);
     }
+    if (data.containsKey('category_name')) {
+      context.handle(
+          _categoryNameMeta,
+          categoryName.isAcceptableOrUnknown(
+              data['category_name']!, _categoryNameMeta));
+    } else if (isInserting) {
+      context.missing(_categoryNameMeta);
+    }
     if (data.containsKey('transaction_date')) {
       context.handle(
           _transactionDateMeta,
@@ -777,7 +820,25 @@ class $ProductTransactionTable extends ProductTransaction
     } else if (isInserting) {
       context.missing(_quantityMeta);
     }
+    if (data.containsKey('unit')) {
+      context.handle(
+          _unitMeta, unit.isAcceptableOrUnknown(data['unit']!, _unitMeta));
+    } else if (isInserting) {
+      context.missing(_unitMeta);
+    }
+    if (data.containsKey('normalized_quantity')) {
+      context.handle(
+          _normalizedQuantityMeta,
+          normalizedQuantity.isAcceptableOrUnknown(
+              data['normalized_quantity']!, _normalizedQuantityMeta));
+    } else if (isInserting) {
+      context.missing(_normalizedQuantityMeta);
+    }
     context.handle(_typeMeta, const VerificationResult.success());
+    if (data.containsKey('product_id')) {
+      context.handle(_productIdMeta,
+          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    }
     return context;
   }
 
@@ -791,13 +852,21 @@ class $ProductTransactionTable extends ProductTransaction
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       productName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}product_name'])!,
+      categoryName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category_name'])!,
       transactionDate: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}transaction_date'])!,
       quantity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
+          .read(DriftSqlType.double, data['${effectivePrefix}quantity'])!,
+      unit: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}unit'])!,
+      normalizedQuantity: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}normalized_quantity'])!,
       type: $ProductTransactionTable.$convertertype.fromSql(attachedDatabase
           .typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}type'])!),
+      productId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}product_id']),
     );
   }
 
@@ -814,25 +883,39 @@ class ProductTransactionData extends DataClass
     implements Insertable<ProductTransactionData> {
   final int id;
   final String productName;
+  final String categoryName;
   final DateTime transactionDate;
-  final int quantity;
+  final double quantity;
+  final int unit;
+  final double normalizedQuantity;
   final TransactionType type;
+  final int? productId;
   const ProductTransactionData(
       {required this.id,
       required this.productName,
+      required this.categoryName,
       required this.transactionDate,
       required this.quantity,
-      required this.type});
+      required this.unit,
+      required this.normalizedQuantity,
+      required this.type,
+      this.productId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['product_name'] = Variable<String>(productName);
+    map['category_name'] = Variable<String>(categoryName);
     map['transaction_date'] = Variable<DateTime>(transactionDate);
-    map['quantity'] = Variable<int>(quantity);
+    map['quantity'] = Variable<double>(quantity);
+    map['unit'] = Variable<int>(unit);
+    map['normalized_quantity'] = Variable<double>(normalizedQuantity);
     {
       map['type'] =
           Variable<String>($ProductTransactionTable.$convertertype.toSql(type));
+    }
+    if (!nullToAbsent || productId != null) {
+      map['product_id'] = Variable<int>(productId);
     }
     return map;
   }
@@ -841,9 +924,15 @@ class ProductTransactionData extends DataClass
     return ProductTransactionCompanion(
       id: Value(id),
       productName: Value(productName),
+      categoryName: Value(categoryName),
       transactionDate: Value(transactionDate),
       quantity: Value(quantity),
+      unit: Value(unit),
+      normalizedQuantity: Value(normalizedQuantity),
       type: Value(type),
+      productId: productId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(productId),
     );
   }
 
@@ -853,10 +942,15 @@ class ProductTransactionData extends DataClass
     return ProductTransactionData(
       id: serializer.fromJson<int>(json['id']),
       productName: serializer.fromJson<String>(json['productName']),
+      categoryName: serializer.fromJson<String>(json['categoryName']),
       transactionDate: serializer.fromJson<DateTime>(json['transactionDate']),
-      quantity: serializer.fromJson<int>(json['quantity']),
+      quantity: serializer.fromJson<double>(json['quantity']),
+      unit: serializer.fromJson<int>(json['unit']),
+      normalizedQuantity:
+          serializer.fromJson<double>(json['normalizedQuantity']),
       type: $ProductTransactionTable.$convertertype
           .fromJson(serializer.fromJson<String>(json['type'])),
+      productId: serializer.fromJson<int?>(json['productId']),
     );
   }
   @override
@@ -865,36 +959,56 @@ class ProductTransactionData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'productName': serializer.toJson<String>(productName),
+      'categoryName': serializer.toJson<String>(categoryName),
       'transactionDate': serializer.toJson<DateTime>(transactionDate),
-      'quantity': serializer.toJson<int>(quantity),
+      'quantity': serializer.toJson<double>(quantity),
+      'unit': serializer.toJson<int>(unit),
+      'normalizedQuantity': serializer.toJson<double>(normalizedQuantity),
       'type': serializer
           .toJson<String>($ProductTransactionTable.$convertertype.toJson(type)),
+      'productId': serializer.toJson<int?>(productId),
     };
   }
 
   ProductTransactionData copyWith(
           {int? id,
           String? productName,
+          String? categoryName,
           DateTime? transactionDate,
-          int? quantity,
-          TransactionType? type}) =>
+          double? quantity,
+          int? unit,
+          double? normalizedQuantity,
+          TransactionType? type,
+          Value<int?> productId = const Value.absent()}) =>
       ProductTransactionData(
         id: id ?? this.id,
         productName: productName ?? this.productName,
+        categoryName: categoryName ?? this.categoryName,
         transactionDate: transactionDate ?? this.transactionDate,
         quantity: quantity ?? this.quantity,
+        unit: unit ?? this.unit,
+        normalizedQuantity: normalizedQuantity ?? this.normalizedQuantity,
         type: type ?? this.type,
+        productId: productId.present ? productId.value : this.productId,
       );
   ProductTransactionData copyWithCompanion(ProductTransactionCompanion data) {
     return ProductTransactionData(
       id: data.id.present ? data.id.value : this.id,
       productName:
           data.productName.present ? data.productName.value : this.productName,
+      categoryName: data.categoryName.present
+          ? data.categoryName.value
+          : this.categoryName,
       transactionDate: data.transactionDate.present
           ? data.transactionDate.value
           : this.transactionDate,
       quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      normalizedQuantity: data.normalizedQuantity.present
+          ? data.normalizedQuantity.value
+          : this.normalizedQuantity,
       type: data.type.present ? data.type.value : this.type,
+      productId: data.productId.present ? data.productId.value : this.productId,
     );
   }
 
@@ -903,79 +1017,118 @@ class ProductTransactionData extends DataClass
     return (StringBuffer('ProductTransactionData(')
           ..write('id: $id, ')
           ..write('productName: $productName, ')
+          ..write('categoryName: $categoryName, ')
           ..write('transactionDate: $transactionDate, ')
           ..write('quantity: $quantity, ')
-          ..write('type: $type')
+          ..write('unit: $unit, ')
+          ..write('normalizedQuantity: $normalizedQuantity, ')
+          ..write('type: $type, ')
+          ..write('productId: $productId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, productName, transactionDate, quantity, type);
+  int get hashCode => Object.hash(id, productName, categoryName,
+      transactionDate, quantity, unit, normalizedQuantity, type, productId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ProductTransactionData &&
           other.id == this.id &&
           other.productName == this.productName &&
+          other.categoryName == this.categoryName &&
           other.transactionDate == this.transactionDate &&
           other.quantity == this.quantity &&
-          other.type == this.type);
+          other.unit == this.unit &&
+          other.normalizedQuantity == this.normalizedQuantity &&
+          other.type == this.type &&
+          other.productId == this.productId);
 }
 
 class ProductTransactionCompanion
     extends UpdateCompanion<ProductTransactionData> {
   final Value<int> id;
   final Value<String> productName;
+  final Value<String> categoryName;
   final Value<DateTime> transactionDate;
-  final Value<int> quantity;
+  final Value<double> quantity;
+  final Value<int> unit;
+  final Value<double> normalizedQuantity;
   final Value<TransactionType> type;
+  final Value<int?> productId;
   const ProductTransactionCompanion({
     this.id = const Value.absent(),
     this.productName = const Value.absent(),
+    this.categoryName = const Value.absent(),
     this.transactionDate = const Value.absent(),
     this.quantity = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.normalizedQuantity = const Value.absent(),
     this.type = const Value.absent(),
+    this.productId = const Value.absent(),
   });
   ProductTransactionCompanion.insert({
     this.id = const Value.absent(),
     required String productName,
+    required String categoryName,
     required DateTime transactionDate,
-    required int quantity,
+    required double quantity,
+    required int unit,
+    required double normalizedQuantity,
     required TransactionType type,
+    this.productId = const Value.absent(),
   })  : productName = Value(productName),
+        categoryName = Value(categoryName),
         transactionDate = Value(transactionDate),
         quantity = Value(quantity),
+        unit = Value(unit),
+        normalizedQuantity = Value(normalizedQuantity),
         type = Value(type);
   static Insertable<ProductTransactionData> custom({
     Expression<int>? id,
     Expression<String>? productName,
+    Expression<String>? categoryName,
     Expression<DateTime>? transactionDate,
-    Expression<int>? quantity,
+    Expression<double>? quantity,
+    Expression<int>? unit,
+    Expression<double>? normalizedQuantity,
     Expression<String>? type,
+    Expression<int>? productId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (productName != null) 'product_name': productName,
+      if (categoryName != null) 'category_name': categoryName,
       if (transactionDate != null) 'transaction_date': transactionDate,
       if (quantity != null) 'quantity': quantity,
+      if (unit != null) 'unit': unit,
+      if (normalizedQuantity != null) 'normalized_quantity': normalizedQuantity,
       if (type != null) 'type': type,
+      if (productId != null) 'product_id': productId,
     });
   }
 
   ProductTransactionCompanion copyWith(
       {Value<int>? id,
       Value<String>? productName,
+      Value<String>? categoryName,
       Value<DateTime>? transactionDate,
-      Value<int>? quantity,
-      Value<TransactionType>? type}) {
+      Value<double>? quantity,
+      Value<int>? unit,
+      Value<double>? normalizedQuantity,
+      Value<TransactionType>? type,
+      Value<int?>? productId}) {
     return ProductTransactionCompanion(
       id: id ?? this.id,
       productName: productName ?? this.productName,
+      categoryName: categoryName ?? this.categoryName,
       transactionDate: transactionDate ?? this.transactionDate,
       quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
+      normalizedQuantity: normalizedQuantity ?? this.normalizedQuantity,
       type: type ?? this.type,
+      productId: productId ?? this.productId,
     );
   }
 
@@ -988,15 +1141,27 @@ class ProductTransactionCompanion
     if (productName.present) {
       map['product_name'] = Variable<String>(productName.value);
     }
+    if (categoryName.present) {
+      map['category_name'] = Variable<String>(categoryName.value);
+    }
     if (transactionDate.present) {
       map['transaction_date'] = Variable<DateTime>(transactionDate.value);
     }
     if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
+      map['quantity'] = Variable<double>(quantity.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<int>(unit.value);
+    }
+    if (normalizedQuantity.present) {
+      map['normalized_quantity'] = Variable<double>(normalizedQuantity.value);
     }
     if (type.present) {
       map['type'] = Variable<String>(
           $ProductTransactionTable.$convertertype.toSql(type.value));
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
     }
     return map;
   }
@@ -1006,9 +1171,13 @@ class ProductTransactionCompanion
     return (StringBuffer('ProductTransactionCompanion(')
           ..write('id: $id, ')
           ..write('productName: $productName, ')
+          ..write('categoryName: $categoryName, ')
           ..write('transactionDate: $transactionDate, ')
           ..write('quantity: $quantity, ')
-          ..write('type: $type')
+          ..write('unit: $unit, ')
+          ..write('normalizedQuantity: $normalizedQuantity, ')
+          ..write('type: $type, ')
+          ..write('productId: $productId')
           ..write(')'))
         .toString();
   }
@@ -1029,23 +1198,30 @@ class $WishListItemTable extends WishListItem
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _productIdMeta =
-      const VerificationMeta('productId');
+  static const VerificationMeta _productNameMeta =
+      const VerificationMeta('productName');
   @override
-  late final GeneratedColumn<int> productId = GeneratedColumn<int>(
-      'product_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES product (id)'));
+  late final GeneratedColumn<String> productName = GeneratedColumn<String>(
+      'product_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _quantityMeta =
       const VerificationMeta('quantity');
   @override
   late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
       'quantity', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _isCheckedMeta =
+      const VerificationMeta('isChecked');
   @override
-  List<GeneratedColumn> get $columns => [id, productId, quantity];
+  late final GeneratedColumn<bool> isChecked = GeneratedColumn<bool>(
+      'is_checked', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_checked" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [id, productName, quantity, isChecked];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1059,17 +1235,23 @@ class $WishListItemTable extends WishListItem
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('product_id')) {
-      context.handle(_productIdMeta,
-          productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta));
+    if (data.containsKey('product_name')) {
+      context.handle(
+          _productNameMeta,
+          productName.isAcceptableOrUnknown(
+              data['product_name']!, _productNameMeta));
     } else if (isInserting) {
-      context.missing(_productIdMeta);
+      context.missing(_productNameMeta);
     }
     if (data.containsKey('quantity')) {
       context.handle(_quantityMeta,
           quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
     } else if (isInserting) {
       context.missing(_quantityMeta);
+    }
+    if (data.containsKey('is_checked')) {
+      context.handle(_isCheckedMeta,
+          isChecked.isAcceptableOrUnknown(data['is_checked']!, _isCheckedMeta));
     }
     return context;
   }
@@ -1082,10 +1264,12 @@ class $WishListItemTable extends WishListItem
     return WishListItemData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      productId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}product_id'])!,
+      productName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}product_name'])!,
       quantity: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
+      isChecked: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_checked'])!,
     );
   }
 
@@ -1098,24 +1282,30 @@ class $WishListItemTable extends WishListItem
 class WishListItemData extends DataClass
     implements Insertable<WishListItemData> {
   final int id;
-  final int productId;
+  final String productName;
   final int quantity;
+  final bool isChecked;
   const WishListItemData(
-      {required this.id, required this.productId, required this.quantity});
+      {required this.id,
+      required this.productName,
+      required this.quantity,
+      required this.isChecked});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['product_id'] = Variable<int>(productId);
+    map['product_name'] = Variable<String>(productName);
     map['quantity'] = Variable<int>(quantity);
+    map['is_checked'] = Variable<bool>(isChecked);
     return map;
   }
 
   WishListItemCompanion toCompanion(bool nullToAbsent) {
     return WishListItemCompanion(
       id: Value(id),
-      productId: Value(productId),
+      productName: Value(productName),
       quantity: Value(quantity),
+      isChecked: Value(isChecked),
     );
   }
 
@@ -1124,8 +1314,9 @@ class WishListItemData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return WishListItemData(
       id: serializer.fromJson<int>(json['id']),
-      productId: serializer.fromJson<int>(json['productId']),
+      productName: serializer.fromJson<String>(json['productName']),
       quantity: serializer.fromJson<int>(json['quantity']),
+      isChecked: serializer.fromJson<bool>(json['isChecked']),
     );
   }
   @override
@@ -1133,22 +1324,27 @@ class WishListItemData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'productId': serializer.toJson<int>(productId),
+      'productName': serializer.toJson<String>(productName),
       'quantity': serializer.toJson<int>(quantity),
+      'isChecked': serializer.toJson<bool>(isChecked),
     };
   }
 
-  WishListItemData copyWith({int? id, int? productId, int? quantity}) =>
+  WishListItemData copyWith(
+          {int? id, String? productName, int? quantity, bool? isChecked}) =>
       WishListItemData(
         id: id ?? this.id,
-        productId: productId ?? this.productId,
+        productName: productName ?? this.productName,
         quantity: quantity ?? this.quantity,
+        isChecked: isChecked ?? this.isChecked,
       );
   WishListItemData copyWithCompanion(WishListItemCompanion data) {
     return WishListItemData(
       id: data.id.present ? data.id.value : this.id,
-      productId: data.productId.present ? data.productId.value : this.productId,
+      productName:
+          data.productName.present ? data.productName.value : this.productName,
       quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      isChecked: data.isChecked.present ? data.isChecked.value : this.isChecked,
     );
   }
 
@@ -1156,56 +1352,67 @@ class WishListItemData extends DataClass
   String toString() {
     return (StringBuffer('WishListItemData(')
           ..write('id: $id, ')
-          ..write('productId: $productId, ')
-          ..write('quantity: $quantity')
+          ..write('productName: $productName, ')
+          ..write('quantity: $quantity, ')
+          ..write('isChecked: $isChecked')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, productId, quantity);
+  int get hashCode => Object.hash(id, productName, quantity, isChecked);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is WishListItemData &&
           other.id == this.id &&
-          other.productId == this.productId &&
-          other.quantity == this.quantity);
+          other.productName == this.productName &&
+          other.quantity == this.quantity &&
+          other.isChecked == this.isChecked);
 }
 
 class WishListItemCompanion extends UpdateCompanion<WishListItemData> {
   final Value<int> id;
-  final Value<int> productId;
+  final Value<String> productName;
   final Value<int> quantity;
+  final Value<bool> isChecked;
   const WishListItemCompanion({
     this.id = const Value.absent(),
-    this.productId = const Value.absent(),
+    this.productName = const Value.absent(),
     this.quantity = const Value.absent(),
+    this.isChecked = const Value.absent(),
   });
   WishListItemCompanion.insert({
     this.id = const Value.absent(),
-    required int productId,
+    required String productName,
     required int quantity,
-  })  : productId = Value(productId),
+    this.isChecked = const Value.absent(),
+  })  : productName = Value(productName),
         quantity = Value(quantity);
   static Insertable<WishListItemData> custom({
     Expression<int>? id,
-    Expression<int>? productId,
+    Expression<String>? productName,
     Expression<int>? quantity,
+    Expression<bool>? isChecked,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (productId != null) 'product_id': productId,
+      if (productName != null) 'product_name': productName,
       if (quantity != null) 'quantity': quantity,
+      if (isChecked != null) 'is_checked': isChecked,
     });
   }
 
   WishListItemCompanion copyWith(
-      {Value<int>? id, Value<int>? productId, Value<int>? quantity}) {
+      {Value<int>? id,
+      Value<String>? productName,
+      Value<int>? quantity,
+      Value<bool>? isChecked}) {
     return WishListItemCompanion(
       id: id ?? this.id,
-      productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
       quantity: quantity ?? this.quantity,
+      isChecked: isChecked ?? this.isChecked,
     );
   }
 
@@ -1215,11 +1422,14 @@ class WishListItemCompanion extends UpdateCompanion<WishListItemData> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (productId.present) {
-      map['product_id'] = Variable<int>(productId.value);
+    if (productName.present) {
+      map['product_name'] = Variable<String>(productName.value);
     }
     if (quantity.present) {
       map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (isChecked.present) {
+      map['is_checked'] = Variable<bool>(isChecked.value);
     }
     return map;
   }
@@ -1228,8 +1438,9 @@ class WishListItemCompanion extends UpdateCompanion<WishListItemData> {
   String toString() {
     return (StringBuffer('WishListItemCompanion(')
           ..write('id: $id, ')
-          ..write('productId: $productId, ')
-          ..write('quantity: $quantity')
+          ..write('productName: $productName, ')
+          ..write('quantity: $quantity, ')
+          ..write('isChecked: $isChecked')
           ..write(')'))
         .toString();
   }
@@ -1505,17 +1716,20 @@ final class $$ProductTableReferences
         manager.$state.copyWith(prefetchedData: [item]));
   }
 
-  static MultiTypedResultKey<$WishListItemTable, List<WishListItemData>>
-      _wishListItemRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-          db.wishListItem,
-          aliasName:
-              $_aliasNameGenerator(db.product.id, db.wishListItem.productId));
+  static MultiTypedResultKey<$ProductTransactionTable,
+      List<ProductTransactionData>> _productTransactionRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.productTransaction,
+          aliasName: $_aliasNameGenerator(
+              db.product.id, db.productTransaction.productId));
 
-  $$WishListItemTableProcessedTableManager get wishListItemRefs {
-    final manager = $$WishListItemTableTableManager($_db, $_db.wishListItem)
-        .filter((f) => f.productId.id($_item.id));
+  $$ProductTransactionTableProcessedTableManager get productTransactionRefs {
+    final manager =
+        $$ProductTransactionTableTableManager($_db, $_db.productTransaction)
+            .filter((f) => f.productId.id($_item.id));
 
-    final cache = $_typedResult.readTableOrNull(_wishListItemRefsTable($_db));
+    final cache =
+        $_typedResult.readTableOrNull(_productTransactionRefsTable($_db));
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
@@ -1579,19 +1793,19 @@ class $$ProductTableFilterComposer
     return composer;
   }
 
-  Expression<bool> wishListItemRefs(
-      Expression<bool> Function($$WishListItemTableFilterComposer f) f) {
-    final $$WishListItemTableFilterComposer composer = $composerBuilder(
+  Expression<bool> productTransactionRefs(
+      Expression<bool> Function($$ProductTransactionTableFilterComposer f) f) {
+    final $$ProductTransactionTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.id,
-        referencedTable: $db.wishListItem,
+        referencedTable: $db.productTransaction,
         getReferencedColumn: (t) => t.productId,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
-            $$WishListItemTableFilterComposer(
+            $$ProductTransactionTableFilterComposer(
               $db: $db,
-              $table: $db.wishListItem,
+              $table: $db.productTransaction,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -1711,24 +1925,25 @@ class $$ProductTableAnnotationComposer
     return composer;
   }
 
-  Expression<T> wishListItemRefs<T extends Object>(
-      Expression<T> Function($$WishListItemTableAnnotationComposer a) f) {
-    final $$WishListItemTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.wishListItem,
-        getReferencedColumn: (t) => t.productId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$WishListItemTableAnnotationComposer(
-              $db: $db,
-              $table: $db.wishListItem,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
+  Expression<T> productTransactionRefs<T extends Object>(
+      Expression<T> Function($$ProductTransactionTableAnnotationComposer a) f) {
+    final $$ProductTransactionTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.productTransaction,
+            getReferencedColumn: (t) => t.productId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ProductTransactionTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.productTransaction,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
     return f(composer);
   }
 }
@@ -1744,7 +1959,7 @@ class $$ProductTableTableManager extends RootTableManager<
     $$ProductTableUpdateCompanionBuilder,
     (ProductData, $$ProductTableReferences),
     ProductData,
-    PrefetchHooks Function({bool productType, bool wishListItemRefs})> {
+    PrefetchHooks Function({bool productType, bool productTransactionRefs})> {
   $$ProductTableTableManager(_$AppDatabase db, $ProductTable table)
       : super(TableManagerState(
           db: db,
@@ -1804,10 +2019,12 @@ class $$ProductTableTableManager extends RootTableManager<
                   (e.readTable(table), $$ProductTableReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: (
-              {productType = false, wishListItemRefs = false}) {
+              {productType = false, productTransactionRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [if (wishListItemRefs) db.wishListItem],
+              explicitlyWatchedTables: [
+                if (productTransactionRefs) db.productTransaction
+              ],
               addJoins: <
                   T extends TableManagerState<
                       dynamic,
@@ -1836,14 +2053,14 @@ class $$ProductTableTableManager extends RootTableManager<
               },
               getPrefetchedDataCallback: (items) async {
                 return [
-                  if (wishListItemRefs)
+                  if (productTransactionRefs)
                     await $_getPrefetchedData(
                         currentTable: table,
-                        referencedTable:
-                            $$ProductTableReferences._wishListItemRefsTable(db),
+                        referencedTable: $$ProductTableReferences
+                            ._productTransactionRefsTable(db),
                         managerFromTypedResult: (p0) =>
                             $$ProductTableReferences(db, table, p0)
-                                .wishListItemRefs,
+                                .productTransactionRefs,
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.productId == item.id),
@@ -1866,23 +2083,51 @@ typedef $$ProductTableProcessedTableManager = ProcessedTableManager<
     $$ProductTableUpdateCompanionBuilder,
     (ProductData, $$ProductTableReferences),
     ProductData,
-    PrefetchHooks Function({bool productType, bool wishListItemRefs})>;
+    PrefetchHooks Function({bool productType, bool productTransactionRefs})>;
 typedef $$ProductTransactionTableCreateCompanionBuilder
     = ProductTransactionCompanion Function({
   Value<int> id,
   required String productName,
+  required String categoryName,
   required DateTime transactionDate,
-  required int quantity,
+  required double quantity,
+  required int unit,
+  required double normalizedQuantity,
   required TransactionType type,
+  Value<int?> productId,
 });
 typedef $$ProductTransactionTableUpdateCompanionBuilder
     = ProductTransactionCompanion Function({
   Value<int> id,
   Value<String> productName,
+  Value<String> categoryName,
   Value<DateTime> transactionDate,
-  Value<int> quantity,
+  Value<double> quantity,
+  Value<int> unit,
+  Value<double> normalizedQuantity,
   Value<TransactionType> type,
+  Value<int?> productId,
 });
+
+final class $$ProductTransactionTableReferences extends BaseReferences<
+    _$AppDatabase, $ProductTransactionTable, ProductTransactionData> {
+  $$ProductTransactionTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProductTable _productIdTable(_$AppDatabase db) =>
+      db.product.createAlias(
+          $_aliasNameGenerator(db.productTransaction.productId, db.product.id));
+
+  $$ProductTableProcessedTableManager? get productId {
+    if ($_item.productId == null) return null;
+    final manager = $$ProductTableTableManager($_db, $_db.product)
+        .filter((f) => f.id($_item.productId!));
+    final item = $_typedResult.readTableOrNull(_productIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
 
 class $$ProductTransactionTableFilterComposer
     extends Composer<_$AppDatabase, $ProductTransactionTable> {
@@ -1899,194 +2144,27 @@ class $$ProductTransactionTableFilterComposer
   ColumnFilters<String> get productName => $composableBuilder(
       column: $table.productName, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get categoryName => $composableBuilder(
+      column: $table.categoryName, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<DateTime> get transactionDate => $composableBuilder(
       column: $table.transactionDate,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get quantity => $composableBuilder(
+  ColumnFilters<double> get quantity => $composableBuilder(
       column: $table.quantity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get unit => $composableBuilder(
+      column: $table.unit, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get normalizedQuantity => $composableBuilder(
+      column: $table.normalizedQuantity,
+      builder: (column) => ColumnFilters(column));
 
   ColumnWithTypeConverterFilters<TransactionType, TransactionType, String>
       get type => $composableBuilder(
           column: $table.type,
           builder: (column) => ColumnWithTypeConverterFilters(column));
-}
-
-class $$ProductTransactionTableOrderingComposer
-    extends Composer<_$AppDatabase, $ProductTransactionTable> {
-  $$ProductTransactionTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get productName => $composableBuilder(
-      column: $table.productName, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get transactionDate => $composableBuilder(
-      column: $table.transactionDate,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get type => $composableBuilder(
-      column: $table.type, builder: (column) => ColumnOrderings(column));
-}
-
-class $$ProductTransactionTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ProductTransactionTable> {
-  $$ProductTransactionTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get productName => $composableBuilder(
-      column: $table.productName, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get transactionDate => $composableBuilder(
-      column: $table.transactionDate, builder: (column) => column);
-
-  GeneratedColumn<int> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<TransactionType, String> get type =>
-      $composableBuilder(column: $table.type, builder: (column) => column);
-}
-
-class $$ProductTransactionTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $ProductTransactionTable,
-    ProductTransactionData,
-    $$ProductTransactionTableFilterComposer,
-    $$ProductTransactionTableOrderingComposer,
-    $$ProductTransactionTableAnnotationComposer,
-    $$ProductTransactionTableCreateCompanionBuilder,
-    $$ProductTransactionTableUpdateCompanionBuilder,
-    (
-      ProductTransactionData,
-      BaseReferences<_$AppDatabase, $ProductTransactionTable,
-          ProductTransactionData>
-    ),
-    ProductTransactionData,
-    PrefetchHooks Function()> {
-  $$ProductTransactionTableTableManager(
-      _$AppDatabase db, $ProductTransactionTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$ProductTransactionTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ProductTransactionTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ProductTransactionTableAnnotationComposer(
-                  $db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> productName = const Value.absent(),
-            Value<DateTime> transactionDate = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
-            Value<TransactionType> type = const Value.absent(),
-          }) =>
-              ProductTransactionCompanion(
-            id: id,
-            productName: productName,
-            transactionDate: transactionDate,
-            quantity: quantity,
-            type: type,
-          ),
-          createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            required String productName,
-            required DateTime transactionDate,
-            required int quantity,
-            required TransactionType type,
-          }) =>
-              ProductTransactionCompanion.insert(
-            id: id,
-            productName: productName,
-            transactionDate: transactionDate,
-            quantity: quantity,
-            type: type,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$ProductTransactionTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $ProductTransactionTable,
-    ProductTransactionData,
-    $$ProductTransactionTableFilterComposer,
-    $$ProductTransactionTableOrderingComposer,
-    $$ProductTransactionTableAnnotationComposer,
-    $$ProductTransactionTableCreateCompanionBuilder,
-    $$ProductTransactionTableUpdateCompanionBuilder,
-    (
-      ProductTransactionData,
-      BaseReferences<_$AppDatabase, $ProductTransactionTable,
-          ProductTransactionData>
-    ),
-    ProductTransactionData,
-    PrefetchHooks Function()>;
-typedef $$WishListItemTableCreateCompanionBuilder = WishListItemCompanion
-    Function({
-  Value<int> id,
-  required int productId,
-  required int quantity,
-});
-typedef $$WishListItemTableUpdateCompanionBuilder = WishListItemCompanion
-    Function({
-  Value<int> id,
-  Value<int> productId,
-  Value<int> quantity,
-});
-
-final class $$WishListItemTableReferences extends BaseReferences<_$AppDatabase,
-    $WishListItemTable, WishListItemData> {
-  $$WishListItemTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $ProductTable _productIdTable(_$AppDatabase db) =>
-      db.product.createAlias(
-          $_aliasNameGenerator(db.wishListItem.productId, db.product.id));
-
-  $$ProductTableProcessedTableManager get productId {
-    final manager = $$ProductTableTableManager($_db, $_db.product)
-        .filter((f) => f.id($_item.productId!));
-    final item = $_typedResult.readTableOrNull(_productIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
-  }
-}
-
-class $$WishListItemTableFilterComposer
-    extends Composer<_$AppDatabase, $WishListItemTable> {
-  $$WishListItemTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnFilters(column));
 
   $$ProductTableFilterComposer get productId {
     final $$ProductTableFilterComposer composer = $composerBuilder(
@@ -2109,9 +2187,9 @@ class $$WishListItemTableFilterComposer
   }
 }
 
-class $$WishListItemTableOrderingComposer
-    extends Composer<_$AppDatabase, $WishListItemTable> {
-  $$WishListItemTableOrderingComposer({
+class $$ProductTransactionTableOrderingComposer
+    extends Composer<_$AppDatabase, $ProductTransactionTable> {
+  $$ProductTransactionTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2121,8 +2199,29 @@ class $$WishListItemTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get quantity => $composableBuilder(
+  ColumnOrderings<String> get productName => $composableBuilder(
+      column: $table.productName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get categoryName => $composableBuilder(
+      column: $table.categoryName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get transactionDate => $composableBuilder(
+      column: $table.transactionDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get quantity => $composableBuilder(
       column: $table.quantity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get unit => $composableBuilder(
+      column: $table.unit, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get normalizedQuantity => $composableBuilder(
+      column: $table.normalizedQuantity,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
 
   $$ProductTableOrderingComposer get productId {
     final $$ProductTableOrderingComposer composer = $composerBuilder(
@@ -2145,9 +2244,9 @@ class $$WishListItemTableOrderingComposer
   }
 }
 
-class $$WishListItemTableAnnotationComposer
-    extends Composer<_$AppDatabase, $WishListItemTable> {
-  $$WishListItemTableAnnotationComposer({
+class $$ProductTransactionTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ProductTransactionTable> {
+  $$ProductTransactionTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2157,8 +2256,26 @@ class $$WishListItemTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<int> get quantity =>
+  GeneratedColumn<String> get productName => $composableBuilder(
+      column: $table.productName, builder: (column) => column);
+
+  GeneratedColumn<String> get categoryName => $composableBuilder(
+      column: $table.categoryName, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get transactionDate => $composableBuilder(
+      column: $table.transactionDate, builder: (column) => column);
+
+  GeneratedColumn<double> get quantity =>
       $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<int> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<double> get normalizedQuantity => $composableBuilder(
+      column: $table.normalizedQuantity, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<TransactionType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
 
   $$ProductTableAnnotationComposer get productId {
     final $$ProductTableAnnotationComposer composer = $composerBuilder(
@@ -2181,52 +2298,78 @@ class $$WishListItemTableAnnotationComposer
   }
 }
 
-class $$WishListItemTableTableManager extends RootTableManager<
+class $$ProductTransactionTableTableManager extends RootTableManager<
     _$AppDatabase,
-    $WishListItemTable,
-    WishListItemData,
-    $$WishListItemTableFilterComposer,
-    $$WishListItemTableOrderingComposer,
-    $$WishListItemTableAnnotationComposer,
-    $$WishListItemTableCreateCompanionBuilder,
-    $$WishListItemTableUpdateCompanionBuilder,
-    (WishListItemData, $$WishListItemTableReferences),
-    WishListItemData,
+    $ProductTransactionTable,
+    ProductTransactionData,
+    $$ProductTransactionTableFilterComposer,
+    $$ProductTransactionTableOrderingComposer,
+    $$ProductTransactionTableAnnotationComposer,
+    $$ProductTransactionTableCreateCompanionBuilder,
+    $$ProductTransactionTableUpdateCompanionBuilder,
+    (ProductTransactionData, $$ProductTransactionTableReferences),
+    ProductTransactionData,
     PrefetchHooks Function({bool productId})> {
-  $$WishListItemTableTableManager(_$AppDatabase db, $WishListItemTable table)
+  $$ProductTransactionTableTableManager(
+      _$AppDatabase db, $ProductTransactionTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$WishListItemTableFilterComposer($db: db, $table: table),
+              $$ProductTransactionTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$WishListItemTableOrderingComposer($db: db, $table: table),
+              $$ProductTransactionTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$WishListItemTableAnnotationComposer($db: db, $table: table),
+              $$ProductTransactionTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            Value<int> productId = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
+            Value<String> productName = const Value.absent(),
+            Value<String> categoryName = const Value.absent(),
+            Value<DateTime> transactionDate = const Value.absent(),
+            Value<double> quantity = const Value.absent(),
+            Value<int> unit = const Value.absent(),
+            Value<double> normalizedQuantity = const Value.absent(),
+            Value<TransactionType> type = const Value.absent(),
+            Value<int?> productId = const Value.absent(),
           }) =>
-              WishListItemCompanion(
+              ProductTransactionCompanion(
             id: id,
-            productId: productId,
+            productName: productName,
+            categoryName: categoryName,
+            transactionDate: transactionDate,
             quantity: quantity,
+            unit: unit,
+            normalizedQuantity: normalizedQuantity,
+            type: type,
+            productId: productId,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            required int productId,
-            required int quantity,
+            required String productName,
+            required String categoryName,
+            required DateTime transactionDate,
+            required double quantity,
+            required int unit,
+            required double normalizedQuantity,
+            required TransactionType type,
+            Value<int?> productId = const Value.absent(),
           }) =>
-              WishListItemCompanion.insert(
+              ProductTransactionCompanion.insert(
             id: id,
-            productId: productId,
+            productName: productName,
+            categoryName: categoryName,
+            transactionDate: transactionDate,
             quantity: quantity,
+            unit: unit,
+            normalizedQuantity: normalizedQuantity,
+            type: type,
+            productId: productId,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
                     e.readTable(table),
-                    $$WishListItemTableReferences(db, table, e)
+                    $$ProductTransactionTableReferences(db, table, e)
                   ))
               .toList(),
           prefetchHooksCallback: ({productId = false}) {
@@ -2251,9 +2394,10 @@ class $$WishListItemTableTableManager extends RootTableManager<
                     currentTable: table,
                     currentColumn: table.productId,
                     referencedTable:
-                        $$WishListItemTableReferences._productIdTable(db),
-                    referencedColumn:
-                        $$WishListItemTableReferences._productIdTable(db).id,
+                        $$ProductTransactionTableReferences._productIdTable(db),
+                    referencedColumn: $$ProductTransactionTableReferences
+                        ._productIdTable(db)
+                        .id,
                   ) as T;
                 }
 
@@ -2267,6 +2411,155 @@ class $$WishListItemTableTableManager extends RootTableManager<
         ));
 }
 
+typedef $$ProductTransactionTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ProductTransactionTable,
+    ProductTransactionData,
+    $$ProductTransactionTableFilterComposer,
+    $$ProductTransactionTableOrderingComposer,
+    $$ProductTransactionTableAnnotationComposer,
+    $$ProductTransactionTableCreateCompanionBuilder,
+    $$ProductTransactionTableUpdateCompanionBuilder,
+    (ProductTransactionData, $$ProductTransactionTableReferences),
+    ProductTransactionData,
+    PrefetchHooks Function({bool productId})>;
+typedef $$WishListItemTableCreateCompanionBuilder = WishListItemCompanion
+    Function({
+  Value<int> id,
+  required String productName,
+  required int quantity,
+  Value<bool> isChecked,
+});
+typedef $$WishListItemTableUpdateCompanionBuilder = WishListItemCompanion
+    Function({
+  Value<int> id,
+  Value<String> productName,
+  Value<int> quantity,
+  Value<bool> isChecked,
+});
+
+class $$WishListItemTableFilterComposer
+    extends Composer<_$AppDatabase, $WishListItemTable> {
+  $$WishListItemTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get productName => $composableBuilder(
+      column: $table.productName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isChecked => $composableBuilder(
+      column: $table.isChecked, builder: (column) => ColumnFilters(column));
+}
+
+class $$WishListItemTableOrderingComposer
+    extends Composer<_$AppDatabase, $WishListItemTable> {
+  $$WishListItemTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get productName => $composableBuilder(
+      column: $table.productName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isChecked => $composableBuilder(
+      column: $table.isChecked, builder: (column) => ColumnOrderings(column));
+}
+
+class $$WishListItemTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WishListItemTable> {
+  $$WishListItemTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get productName => $composableBuilder(
+      column: $table.productName, builder: (column) => column);
+
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<bool> get isChecked =>
+      $composableBuilder(column: $table.isChecked, builder: (column) => column);
+}
+
+class $$WishListItemTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $WishListItemTable,
+    WishListItemData,
+    $$WishListItemTableFilterComposer,
+    $$WishListItemTableOrderingComposer,
+    $$WishListItemTableAnnotationComposer,
+    $$WishListItemTableCreateCompanionBuilder,
+    $$WishListItemTableUpdateCompanionBuilder,
+    (
+      WishListItemData,
+      BaseReferences<_$AppDatabase, $WishListItemTable, WishListItemData>
+    ),
+    WishListItemData,
+    PrefetchHooks Function()> {
+  $$WishListItemTableTableManager(_$AppDatabase db, $WishListItemTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WishListItemTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WishListItemTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WishListItemTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> productName = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<bool> isChecked = const Value.absent(),
+          }) =>
+              WishListItemCompanion(
+            id: id,
+            productName: productName,
+            quantity: quantity,
+            isChecked: isChecked,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String productName,
+            required int quantity,
+            Value<bool> isChecked = const Value.absent(),
+          }) =>
+              WishListItemCompanion.insert(
+            id: id,
+            productName: productName,
+            quantity: quantity,
+            isChecked: isChecked,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
 typedef $$WishListItemTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
     $WishListItemTable,
@@ -2276,9 +2569,12 @@ typedef $$WishListItemTableProcessedTableManager = ProcessedTableManager<
     $$WishListItemTableAnnotationComposer,
     $$WishListItemTableCreateCompanionBuilder,
     $$WishListItemTableUpdateCompanionBuilder,
-    (WishListItemData, $$WishListItemTableReferences),
+    (
+      WishListItemData,
+      BaseReferences<_$AppDatabase, $WishListItemTable, WishListItemData>
+    ),
     WishListItemData,
-    PrefetchHooks Function({bool productId})>;
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;

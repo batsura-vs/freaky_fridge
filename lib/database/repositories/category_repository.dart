@@ -11,6 +11,9 @@ class CategoryRepository {
   Future<List<CategoryData>> getAllCategories() =>
       _db.select(_db.category).get();
 
+  Stream<List<CategoryData>> watchAllCategories() =>
+      _db.select(_db.category).watch();
+
   Future<CategoryData> getCategoryById(int id) async {
     return await (_db.select(_db.category)..where((tbl) => tbl.id.equals(id)))
             .getSingleOrNull() ??

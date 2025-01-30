@@ -5,6 +5,7 @@ import 'package:freaky_fridge/entrypoint/entrypoit.dart';
 import 'package:freaky_fridge/pages/products.dart';
 import 'package:freaky_fridge/pages/wish_list.dart';
 import 'package:get/get.dart';
+import 'package:freaky_fridge/bindings/stats_binding.dart';
 
 import 'package:freaky_fridge/services/expiration_service.dart';
 
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Freaky Fridge',
       themeMode: ThemeMode.dark,
+      initialBinding: StatsBinding(),
       darkTheme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF0A0A0A),
         colorScheme: const ColorScheme.dark(

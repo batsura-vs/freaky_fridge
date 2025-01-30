@@ -1,4 +1,5 @@
 import 'package:freaky_fridge/database/database.dart';
+import 'package:freaky_fridge/database/models/product.dart';
 
 class ProductTransactionController {
   final AppDatabase _database = AppDatabase.instance;
@@ -7,16 +8,34 @@ class ProductTransactionController {
     return await _database.allProductTransactions;
   }
 
-  Future<int> insertTransaction(ProductTransactionCompanion transaction) async {
-    return await _database.insertProductTransaction(transaction);
+  Future<int> insertTransaction(
+    ProductTransactionCompanion transaction, {
+    int? productId,
+    required Unit unit,
+    required double quantity,
+  }) async {
+    return await _database.insertProductTransaction(
+      transaction,
+      productId: productId,
+      unit: unit,
+      quantity: quantity,
+    );
   }
 
   Future<int> deleteTransaction(int id) async {
     return await _database.deleteProductTransaction(id);
   }
 
-  Future<bool> updateTransaction(ProductTransactionCompanion transaction) async {
-    return await _database.updateProductTransaction(transaction);
+  Future<bool> updateTransaction(
+    ProductTransactionCompanion transaction, {
+    required Unit unit,
+    required double quantity,
+  }) async {
+    return await _database.updateProductTransaction(
+      transaction,
+      unit: unit,
+      quantity: quantity,
+    );
   }
 
   Stream<List<ProductTransactionData>> watchAllTransactions() {

@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
+import 'package:drift/native.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import 'package:freaky_fridge/database/repositories/category_repository.dart';
 import 'package:freaky_fridge/database/repositories/product_repository.dart';
 import 'package:freaky_fridge/database/repositories/transaction_repository.dart';
 import 'package:freaky_fridge/database/repositories/wish_list_repository.dart';
-import 'package:freaky_fridge/database/models/category.dart';
+import 'package:freaky_fridge/database/models/category.dart' as app_models;
 import 'package:freaky_fridge/database/models/product.dart';
 import 'package:freaky_fridge/database/models/product_transaction.dart';
 import 'package:freaky_fridge/database/models/transaction_type.dart';
@@ -13,7 +16,7 @@ import 'package:freaky_fridge/database/models/wish_list_item.dart';
 part 'database.g.dart';
 
 @DriftDatabase(
-  tables: [Product, Category, ProductTransaction, WishListItem],
+  tables: [Product, app_models.Category, ProductTransaction, WishListItem],
 )
 class AppDatabase extends _$AppDatabase {
   // Singleton instance
@@ -33,26 +36,8 @@ class AppDatabase extends _$AppDatabase {
     wishListRepository = WishListRepository(this);
   }
 
-  static QueryExecutor _openConnection() {
-    return LazyDatabase(() async {
-      return driftDatabase(name: 'productdb');
-    });
-  }
-
   @override
   int get schemaVersion => 2;
-
-  @override
-  MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (Migrator m) async {
-          await m.createAll();
-        },
-        onUpgrade: (Migrator m, int from, int to) async {
-          if (from < 2) {
-            await m.createTable(wishListItem);
-          }
-        },
-      );
 
   // Delegate methods to repositories
   Future<List<CategoryData>> getAllCategories() =>
@@ -76,15 +61,51 @@ class AppDatabase extends _$AppDatabase {
 
   Future<List<ProductTransactionData>> get allProductTransactions =>
       transactionRepository.getAllProductTransactions();
-  Future<int> insertProductTransaction(ProductTransactionCompanion record) =>
-      transactionRepository.insertProductTransaction(record);
+  Future<int> insertProductTransaction(
+    ProductTransactionCompanion record, {
+    int? productId,
+    required Unit unit,
+    required double quantity,
+  }) =>
+      transactionRepository.insertProductTransaction(
+        record,
+        productId: productId,
+        unit: unit,
+        quantity: quantity,
+      );
   Future<int> deleteProductTransaction(int id) =>
       transactionRepository.deleteProductTransaction(id);
-  Future<bool> updateProductTransaction(ProductTransactionCompanion record) =>
-      transactionRepository.updateProductTransaction(record);
+  Future<bool> updateProductTransaction(
+    ProductTransactionCompanion record, {
+    required Unit unit,
+    required double quantity,
+  }) =>
+      transactionRepository.updateProductTransaction(
+        record,
+        unit: unit,
+        quantity: quantity,
+      );
   Stream<List<ProductTransactionData>> watchAllProductTransactions() =>
       transactionRepository.watchAllProductTransactions();
-  Future<Map<DateTime, Map<String, dynamic>>> getProductTransactionsForPeriod(
-          DateTime startDate, DateTime endDate) =>
-      transactionRepository.getProductTransactionsForPeriod(startDate, endDate);
+  Future<Map<DateTime, Map<String, Map<String, dynamic>>>>
+      getProductTransactionsForPeriod(DateTime startDate, DateTime endDate,
+              {int? productId}) =>
+          transactionRepository.getProductTransactionsForPeriod(
+              startDate, endDate,
+              productId: productId);
+
+  Future<List<Map<String, dynamic>>> getUniqueProductsWithTransactions(
+    DateTime startDate,
+    DateTime endDate,
+  ) =>
+      transactionRepository.getUniqueProductsWithTransactions(
+          startDate, endDate);
+}
+
+LazyDatabase _openConnection() {
+  return LazyDatabase(() async {
+    final dbFolder = await getApplicationDocumentsDirectory();
+    final file = File(p.join(dbFolder.path, 'freaky_fridge.sqlite'));
+    return NativeDatabase.createInBackground(file);
+  });
 }
