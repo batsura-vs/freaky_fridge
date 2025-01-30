@@ -14,7 +14,7 @@ class _StatsPageState extends State<StatsPage> {
   DateTime _endDate = DateTime.now();
 
   Future<Map<DateTime, Map<String, dynamic>>> _fetchData() async {
-    return await ProductDatabase.instance
+    return await AppDatabase.instance
         .getProductTransactionsForPeriod(_startDate, _endDate);
   }
 

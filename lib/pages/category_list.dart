@@ -24,8 +24,8 @@ class CategoryListScreen extends StatelessWidget {
         ],
       ),
       body: StreamBuilder<List<CategoryData>>(
-        stream: ProductDatabase.instance
-            .select(ProductDatabase.instance.category)
+        stream: AppDatabase.instance
+            .select(AppDatabase.instance.category)
             .watch(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -87,8 +87,8 @@ class CategoryListScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                await ProductDatabase.instance
-                    .update(ProductDatabase.instance.category)
+                await AppDatabase.instance
+                    .update(AppDatabase.instance.category)
                     .replace(category.copyWith(name: nameController.text));
                 Get.back();
               },

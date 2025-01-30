@@ -15,7 +15,7 @@ class ProductsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: ProductDatabase.instance.watchAllProducts(),
+      stream: AppDatabase.instance.watchAllProducts(),
       builder: (context, snapshot) => Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),

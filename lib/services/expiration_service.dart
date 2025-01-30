@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 class ExpirationService extends GetxService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  final database = ProductDatabase.instance;
+  final database = AppDatabase.instance;
 
   final AndroidNotificationDetails androidNotificationDetails =
       const AndroidNotificationDetails(

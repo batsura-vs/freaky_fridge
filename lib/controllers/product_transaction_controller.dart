@@ -1,7 +1,7 @@
 import 'package:freaky_fridge/database/database.dart';
 
 class ProductTransactionController {
-  final ProductDatabase _database = ProductDatabase.instance;
+  final AppDatabase _database = AppDatabase.instance;
 
   Future<List<ProductTransactionData>> getAllTransactions() async {
     return await _database.allProductTransactions;

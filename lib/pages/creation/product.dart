@@ -37,7 +37,7 @@ class ProductPage extends StatelessWidget {
                     color: Colors.red,
                   ),
                   onPressed: () {
-                    ProductDatabase.instance.deleteProduct(
+                    AppDatabase.instance.deleteProduct(
                       controller.id.value,
                     );
                     Get.back();
@@ -85,8 +85,8 @@ class ProductPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: StreamBuilder<List<CategoryData>>(
-                        stream: ProductDatabase.instance
-                            .select(ProductDatabase.instance.category)
+                        stream: AppDatabase.instance
+                            .select(AppDatabase.instance.category)
                             .watch(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
@@ -264,7 +264,7 @@ class ProductPage extends StatelessWidget {
         child: const Icon(Icons.save),
         onPressed: () {
           if (controller.id.value == -1) {
-            ProductDatabase.instance.insertProduct(
+            AppDatabase.instance.insertProduct(
               ProductCompanion.insert(
                 name: controller.name.value,
                 description: Value(controller.description.value),
@@ -277,7 +277,7 @@ class ProductPage extends StatelessWidget {
               ),
             );
           } else {
-            ProductDatabase.instance.updateProduct(ProductCompanion(
+            AppDatabase.instance.updateProduct(ProductCompanion(
               id: Value(controller.id.value),
               name: Value(controller.name.value),
               description: Value(controller.description.value),

@@ -17,7 +17,7 @@ class QrProductWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
-        future: ProductDatabase.instance.getCategoryById(product.productType),
+        future: AppDatabase.instance.getCategoryById(product.productType),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text(snapshot.error.toString()));

@@ -36,7 +36,7 @@ class CategoryPage extends StatelessWidget {
         label: const Text('Сохранить'),
         icon: const Icon(Icons.save),
         onPressed: () async {
-          await ProductDatabase.instance.insertCategory(
+          await AppDatabase.instance.insertCategory(
             CategoryCompanion.insert(
               name: controller.categoryName.value,
             ),

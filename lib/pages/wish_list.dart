@@ -76,7 +76,7 @@ class WishList extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: FutureBuilder(
-                      future: ProductDatabase.instance.allProducts,
+                      future: AppDatabase.instance.allProducts,
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
                           return const Center(

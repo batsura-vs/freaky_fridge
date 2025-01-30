@@ -25,10 +25,10 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
         final decodedString = utf8.decode(decompressedBytes);
         final List<dynamic> productData = jsonDecode(decodedString);
         final prType = productData[1];
-        final categ = await ProductDatabase.instance.getCategoryByName(prType);
+        final categ = await AppDatabase.instance.getCategoryByName(prType);
         int catId = categ?.id ?? -1;
         if (catId == -1) {
-          catId = await ProductDatabase.instance.insertCategory(
+          catId = await AppDatabase.instance.insertCategory(
             CategoryCompanion.insert(
               name: prType ?? "По умолчанию",
             ),

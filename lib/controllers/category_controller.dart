@@ -9,12 +9,12 @@ class CategoryController extends GetxController {
   }
 
   Future<void> updateCategory(CategoryData category) async {
-    await ProductDatabase.instance.update(ProductDatabase.instance.category)
+    await AppDatabase.instance.update(AppDatabase.instance.category)
         .replace(category);
   }
 
   Future<void> deleteCategory(int id) async {
-    await (ProductDatabase.instance.delete(ProductDatabase.instance.category)
+    await (AppDatabase.instance.delete(AppDatabase.instance.category)
           ..where((tbl) => tbl.id.equals(id)))
         .go();
   }
