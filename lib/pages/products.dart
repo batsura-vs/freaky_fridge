@@ -155,13 +155,10 @@ class ProductsPage extends StatelessWidget {
             labelStyle: TextStyle(
               color: selectedCategory.value == category.id
                   ? Color(category.color)
-                  : Colors.white
-                ..withAlpha((255 * 0.8).toInt()),
+                  : Colors.white.withAlpha((255 * 0.8).toInt()),
             ),
-            backgroundColor: Color(category.color)
-              ..withAlpha((255 * 0.2).toInt()),
-            selectedColor: Color(category.color)
-              ..withAlpha((255 * 0.3).toInt()),
+            backgroundColor: Color(category.color),
+            selectedColor: Color(category.color).withAlpha((255 * 0.3).toInt()),
             onSelected: (selected) {
               selectedCategory.value = selected ? category.id : -1;
             },

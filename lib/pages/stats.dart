@@ -57,48 +57,84 @@ class _StatsPageState extends State<StatsPage> {
         minChildSize: 0.5,
         expand: false,
         builder: (context, scrollController) {
-          return SingleChildScrollView(
-            controller: scrollController,
-            child: Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Фильтры',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
+          // Create temporary variables to hold the new filter values
+          DateTime tempStartDate = _startDate;
+          DateTime tempEndDate = _endDate;
+          String? tempSelectedProduct = _selectedProduct;
+          String tempSelectedUnitType = _selectedUnitType;
+
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return SingleChildScrollView(
+                controller: scrollController,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
                   ),
-                  const Divider(),
-                  _buildDateRangePicker(),
-                  _buildProductPicker(),
-                  _buildUnitTypePicker(),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: FilledButton(
-                      onPressed: () {
-                        _refreshData();
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Применить'),
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              'Фильтры',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(),
+                      _buildDateRangePicker(
+                        tempStartDate: tempStartDate,
+                        tempEndDate: tempEndDate,
+                        onStartDateChanged: (date) {
+                          setState(() => tempStartDate = date);
+                        },
+                        onEndDateChanged: (date) {
+                          setState(() => tempEndDate = date);
+                        },
+                      ),
+                      _buildProductPicker(
+                        tempSelectedProduct: tempSelectedProduct,
+                        onProductChanged: (product) {
+                          setState(() => tempSelectedProduct = product);
+                        },
+                      ),
+                      _buildUnitTypePicker(
+                        tempSelectedUnitType: tempSelectedUnitType,
+                        onUnitTypeChanged: (unitType) {
+                          setState(() => tempSelectedUnitType = unitType);
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: FilledButton(
+                          onPressed: () {
+                            // Update the main state with the new filter values
+                            this.setState(() {
+                              _startDate = tempStartDate;
+                              _endDate = tempEndDate;
+                              _selectedProduct = tempSelectedProduct;
+                              _selectedUnitType = tempSelectedUnitType;
+                            });
+                            _refreshData();
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Применить'),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -265,7 +301,12 @@ class _StatsPageState extends State<StatsPage> {
     );
   }
 
-  Widget _buildDateRangePicker() {
+  Widget _buildDateRangePicker({
+    required DateTime tempStartDate,
+    required DateTime tempEndDate,
+    required Function(DateTime) onStartDateChanged,
+    required Function(DateTime) onEndDateChanged,
+  }) {
     return Card(
       margin: const EdgeInsets.all(16.0),
       child: Padding(
@@ -283,16 +324,36 @@ class _StatsPageState extends State<StatsPage> {
                 Expanded(
                   child: _buildDateButton(
                     label: 'От',
-                    date: _startDate,
-                    onPressed: () => _selectDate(true),
+                    date: tempStartDate,
+                    onPressed: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: tempStartDate,
+                        firstDate: DateTime(2000),
+                        lastDate: tempEndDate,
+                      );
+                      if (picked != null) {
+                        onStartDateChanged(picked);
+                      }
+                    },
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildDateButton(
                     label: 'До',
-                    date: _endDate,
-                    onPressed: () => _selectDate(false),
+                    date: tempEndDate,
+                    onPressed: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: tempEndDate,
+                        firstDate: tempStartDate,
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) {
+                        onEndDateChanged(picked.add(const Duration(hours: 23, minutes: 59, seconds: 59)));
+                      }
+                    },
                   ),
                 ),
               ],
@@ -302,11 +363,11 @@ class _StatsPageState extends State<StatsPage> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _buildQuickDateChip('7 дней', 7),
-                  _buildQuickDateChip('30 дней', 30),
-                  _buildQuickDateChip('3 месяца', 90),
-                  _buildQuickDateChip('6 месяцев', 180),
-                  _buildQuickDateChip('1 год', 365),
+                  _buildQuickDateChip('7 дней', 7, tempStartDate, tempEndDate, onStartDateChanged, onEndDateChanged),
+                  _buildQuickDateChip('30 дней', 30, tempStartDate, tempEndDate, onStartDateChanged, onEndDateChanged),
+                  _buildQuickDateChip('3 месяца', 90, tempStartDate, tempEndDate, onStartDateChanged, onEndDateChanged),
+                  _buildQuickDateChip('6 месяцев', 180, tempStartDate, tempEndDate, onStartDateChanged, onEndDateChanged),
+                  _buildQuickDateChip('1 год', 365, tempStartDate, tempEndDate, onStartDateChanged, onEndDateChanged),
                 ],
               ),
             ),
@@ -345,43 +406,34 @@ class _StatsPageState extends State<StatsPage> {
     );
   }
 
-  Widget _buildQuickDateChip(String label, int days) {
+  Widget _buildQuickDateChip(
+    String label,
+    int days,
+    DateTime tempStartDate,
+    DateTime tempEndDate,
+    Function(DateTime) onStartDateChanged,
+    Function(DateTime) onEndDateChanged,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: ActionChip(
         label: Text(label),
         onPressed: () {
-          setState(() {
-            _endDate = DateTime.now();
-            _startDate = _endDate.subtract(Duration(days: days));
-          });
-          _refreshData();
+          final newEndDate = DateTime.now();
+          final newStartDate = newEndDate.subtract(Duration(days: days));
+          if (days > 0) {
+            onStartDateChanged(newStartDate);
+            onEndDateChanged(newEndDate);
+          }
         },
       ),
     );
   }
 
-  Future<void> _selectDate(bool isStart) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: isStart ? _startDate : _endDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) {
-      setState(() {
-        if (isStart) {
-          _startDate = picked;
-        } else {
-          _endDate =
-              picked.add(const Duration(hours: 23, minutes: 59, seconds: 59));
-        }
-      });
-      _refreshData();
-    }
-  }
-
-  Widget _buildProductPicker() {
+  Widget _buildProductPicker({
+    required String? tempSelectedProduct,
+    required Function(String?) onProductChanged,
+  }) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Padding(
@@ -407,7 +459,7 @@ class _StatsPageState extends State<StatsPage> {
                 final historicalProducts = historicalProductsSnapshot.data!;
 
                 return DropdownButtonFormField<String?>(
-                  value: _selectedProduct,
+                  value: tempSelectedProduct,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     contentPadding:
@@ -426,12 +478,7 @@ class _StatsPageState extends State<StatsPage> {
                       );
                     }),
                   ],
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedProduct = newValue;
-                    });
-                    _refreshData();
-                  },
+                  onChanged: onProductChanged,
                 );
               },
             ),
@@ -441,7 +488,10 @@ class _StatsPageState extends State<StatsPage> {
     );
   }
 
-  Widget _buildUnitTypePicker() {
+  Widget _buildUnitTypePicker({
+    required String tempSelectedUnitType,
+    required Function(String) onUnitTypeChanged,
+  }) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Padding(
@@ -455,18 +505,15 @@ class _StatsPageState extends State<StatsPage> {
             ),
             const SizedBox(height: 16),
             SegmentedButton<String>(
-              key: ValueKey(_selectedUnitType),
               segments: _unitLabels.entries.map((entry) {
                 return ButtonSegment<String>(
                   value: entry.key,
                   label: Text(entry.value),
                 );
               }).toList(),
-              selected: {_selectedUnitType},
+              selected: {tempSelectedUnitType},
               onSelectionChanged: (Set<String> newSelection) {
-                setState(() {
-                  _selectedUnitType = newSelection.first;
-                });
+                onUnitTypeChanged(newSelection.first);
               },
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.resolveWith<Color?>(
