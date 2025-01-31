@@ -3,6 +3,8 @@ import 'package:freaky_fridge/models/allergen_dto.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:image/image.dart' as img;
+import 'dart:isolate';
 
 class OpenAIService {
   final String apiKey;
@@ -119,9 +121,92 @@ class OpenAIService {
     return 'image/jpeg'; // Default to JPEG if unknown
   }
 
+  Future<String> _processImageInIsolate(Map<String, dynamic> params) async {
+    final bytes = params['bytes'] as Uint8List;
+    final maxDimension = params['maxDimension'] as double;
+    final quality = params['quality'] as int;
+
+    // Decode image
+    final image = img.decodeImage(bytes);
+    if (image == null) throw Exception('Failed to decode image');
+
+    // Calculate new dimensions while maintaining aspect ratio
+    double ratio = image.width > image.height 
+        ? maxDimension / image.width 
+        : maxDimension / image.height;
+    
+    // Only resize if the image is larger than maxDimension
+    if (ratio < 1) {
+      final newWidth = (image.width * ratio).round();
+      final newHeight = (image.height * ratio).round();
+      final resized = img.copyResize(
+        image,
+        width: newWidth,
+        height: newHeight,
+        interpolation: img.Interpolation.linear
+      );
+      
+      final compressedBytes = img.encodeJpg(resized, quality: quality);
+      return base64Encode(compressedBytes);
+    } else {
+      final compressedBytes = img.encodeJpg(image, quality: quality);
+      return base64Encode(compressedBytes);
+    }
+  }
+
+  Future<String> _compressAndResizeImage(String base64Image) async {
+    try {
+      // Decode base64 to bytes
+      final bytes = base64Decode(base64Image);
+      
+      // Create parameters for isolate
+      final params = {
+        'bytes': bytes,
+        'maxDimension': 400.0,
+        'quality': 85,
+      };
+
+      // Create a ReceivePort for getting the result
+      final receivePort = ReceivePort();
+      
+      // Spawn the isolate
+      final isolate = await Isolate.spawn(
+        (Map<String, dynamic> message) async {
+          final SendPort sendPort = message['sendPort'] as SendPort;
+          final params = message['params'] as Map<String, dynamic>;
+          
+          try {
+            final result = await _processImageInIsolate(params);
+            sendPort.send({'success': true, 'data': result});
+          } catch (e) {
+            sendPort.send({'success': false, 'error': e.toString()});
+          }
+        },
+        {'sendPort': receivePort.sendPort, 'params': params},
+      );
+
+      // Wait for the result
+      final response = await receivePort.first as Map<String, dynamic>;
+      
+      // Clean up
+      receivePort.close();
+      isolate.kill();
+
+      if (response['success'] as bool) {
+        return response['data'] as String;
+      } else {
+        throw Exception(response['error']);
+      }
+    } catch (e) {
+      throw Exception('Error processing image: $e');
+    }
+  }
+
   Future<Map<String, dynamic>> analyzeProductImage(String base64Image) async {
     try {
-      final formattedImage = _formatBase64Image(base64Image);
+      // Compress and resize the image before sending
+      final processedImage = await _compressAndResizeImage(base64Image);
+      final formattedImage = _formatBase64Image(processedImage);
 
       final messages = [
         {

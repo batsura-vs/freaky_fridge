@@ -35,13 +35,6 @@ class ProductPage extends StatelessWidget {
     _nameController.text = controller.name.value;
     _massVolumeController.text = controller.massVolume.value.toString();
     _nutritionFactsController.text = controller.nutritionFacts.value;
-
-    // Listen to changes in the controller and update text controllers
-    ever(controller.name, (value) => _nameController.text = value);
-    ever(controller.massVolume,
-        (value) => _massVolumeController.text = value.toString());
-    ever(controller.nutritionFacts,
-        (value) => _nutritionFactsController.text = value);
   }
 
   Future<void> _detectAllergens({String? description}) async {
@@ -98,7 +91,9 @@ class ProductPage extends StatelessWidget {
       controller.updateName(productInfo['name'] ?? '');
       controller.updateMassVolume(productInfo['massVolume'] ?? 0.0);
       controller.updateUnitFromString(productInfo['unit'] ?? 'grams');
-      controller.updateNutritionFacts(productInfo['description'] ?? '');
+      _nameController.text = productInfo['name'] ?? '';
+      _massVolumeController.text = (productInfo['massVolume'] ?? 0).toString();
+      // controller.updateNutritionFacts(productInfo['description'] ?? '');
 
       // Handle category
       if (productInfo['category'] != null &&
@@ -183,67 +178,66 @@ class ProductPage extends StatelessWidget {
 
   Obx _imageSpinner(BuildContext context) {
     return Obx(
-          () => Visibility(
-            visible: controller.isAnalyzingImage.value,
-            child: Container(
-              color: Colors.black.withAlpha((255 * 0.5).toInt()),
-              child: Center(
-                child: Card(
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 80,
-                          height: 80,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              const SizedBox(
-                                width: 80,
-                                height: 80,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 3,
-                                ),
-                              ),
-                              Icon(
-                                Icons.camera_alt,
-                                size: 40,
-                                color:
-                                    Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ],
+      () => Visibility(
+        visible: controller.isAnalyzingImage.value,
+        child: Container(
+          color: Colors.black.withAlpha((255 * 0.5).toInt()),
+          child: Center(
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          const SizedBox(
+                            width: 80,
+                            height: 80,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        const Text(
-                          'Анализируем фотографию...',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                          Icon(
+                            Icons.camera_alt,
+                            size: 40,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Определяем название, состав\nи другие характеристики продукта',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Анализируем фотографию...',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Определяем название, состав\nи другие характеристики продукта',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-        );
+        ),
+      ),
+    );
   }
 
   SliverToBoxAdapter _getAllergens(BuildContext context) {
@@ -387,15 +381,13 @@ class ProductPage extends StatelessWidget {
       children: [
         Expanded(
           flex: 2,
-          child: Obx(
-            () => TextFormField(
-              key: ValueKey(controller.massVolume.value),
-              controller: _massVolumeController,
-              decoration: _buildInputDecoration('Масса/объем'),
-              keyboardType: TextInputType.number,
-              onChanged: (value) =>
-                  controller.updateMassVolume(double.tryParse(value) ?? 0),
-            ),
+          child: TextFormField(
+            controller: _massVolumeController,
+            decoration: _buildInputDecoration('Масса/объем'),
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              controller.updateMassVolume(double.tryParse(value) ?? 0);
+            },
           ),
         ),
         const SizedBox(width: 16),

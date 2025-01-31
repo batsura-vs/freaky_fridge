@@ -312,7 +312,7 @@ class ProductsPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${daysUntilExpiration.abs()} ${_getDaysText(daysUntilExpiration)}',
+                  '${daysUntilExpiration.abs()} дн.',
                   style: TextStyle(
                     color: _getExpirationColor(daysUntilExpiration),
                     fontWeight: FontWeight.w500,
@@ -378,11 +378,6 @@ class ProductsPage extends StatelessWidget {
     if (daysUntilExpiration <= 3) return Colors.orange;
     if (daysUntilExpiration <= 7) return Colors.yellow;
     return Colors.green;
-  }
-
-  String _getDaysText(int days) {
-    if (days < 0) return 'дн. просрочен';
-    return 'дн. осталось';
   }
 
   MaterialColor _getAllergenColor(String importance) {
