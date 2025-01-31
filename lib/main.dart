@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:freaky_fridge/controllers/nav_controller.dart';
+import 'package:freaky_fridge/generated/page0.dart';
+import 'package:freaky_fridge/generated/page1.dart';
+import 'package:freaky_fridge/generated/page2.dart';
 import 'package:freaky_fridge/pages/stats.dart';
 import 'package:freaky_fridge/entrypoint/entrypoit.dart';
 import 'package:freaky_fridge/pages/products.dart';
@@ -34,6 +37,11 @@ class MyApp extends StatelessWidget {
 
     return GetMaterialApp(
       title: 'Freaky Fridge',
+      routes: {
+        '/page0': (context) => const Page0(),
+        '/page1': (context) => const Page1(),
+        '/page2': (context) => const Page2(),
+      },
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF0A0A0A),
@@ -67,7 +75,8 @@ class MyApp extends StatelessWidget {
         navigationBarTheme: NavigationBarThemeData(
           height: 65,
           backgroundColor: const Color(0xFF1A1A1A),
-          indicatorColor: const Color(0xFF6C5CE7).withAlpha((255 * 0.2).toInt()),
+          indicatorColor:
+              const Color(0xFF6C5CE7).withAlpha((255 * 0.2).toInt()),
         ),
         cardTheme: CardTheme(
           color: const Color(0xFF1A1A1A),
@@ -123,7 +132,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: AppEntrypoint(),
+      home: const AppEntrypoint(),
     );
   }
 }
