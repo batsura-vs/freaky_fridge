@@ -235,12 +235,6 @@ class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _descriptionMeta =
-      const VerificationMeta('description');
-  @override
-  late final GeneratedColumn<String> description = GeneratedColumn<String>(
-      'description', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _productTypeMeta =
       const VerificationMeta('productType');
   @override
@@ -280,17 +274,25 @@ class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
   late final GeneratedColumn<String> nutritionFacts = GeneratedColumn<String>(
       'nutrition_facts', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _allergensMeta =
+      const VerificationMeta('allergens');
+  @override
+  late final GeneratedColumn<String> allergens = GeneratedColumn<String>(
+      'allergens', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
         name,
-        description,
         productType,
         manufactureDate,
         expirationDate,
         massVolume,
         unit,
-        nutritionFacts
+        nutritionFacts,
+        allergens
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -310,12 +312,6 @@ class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
           _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
-    }
-    if (data.containsKey('description')) {
-      context.handle(
-          _descriptionMeta,
-          description.isAcceptableOrUnknown(
-              data['description']!, _descriptionMeta));
     }
     if (data.containsKey('product_type')) {
       context.handle(
@@ -358,6 +354,10 @@ class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
     } else if (isInserting) {
       context.missing(_nutritionFactsMeta);
     }
+    if (data.containsKey('allergens')) {
+      context.handle(_allergensMeta,
+          allergens.isAcceptableOrUnknown(data['allergens']!, _allergensMeta));
+    }
     return context;
   }
 
@@ -371,8 +371,6 @@ class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      description: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}description']),
       productType: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}product_type'])!,
       manufactureDate: attachedDatabase.typeMapping.read(
@@ -385,6 +383,8 @@ class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
           .read(DriftSqlType.int, data['${effectivePrefix}unit'])!),
       nutritionFacts: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}nutrition_facts'])!,
+      allergens: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}allergens'])!,
     );
   }
 
@@ -400,31 +400,28 @@ class $ProductTable extends Product with TableInfo<$ProductTable, ProductData> {
 class ProductData extends DataClass implements Insertable<ProductData> {
   final int id;
   final String name;
-  final String? description;
   final int productType;
   final DateTime manufactureDate;
   final DateTime expirationDate;
   final double massVolume;
   final Unit unit;
   final String nutritionFacts;
+  final String allergens;
   const ProductData(
       {required this.id,
       required this.name,
-      this.description,
       required this.productType,
       required this.manufactureDate,
       required this.expirationDate,
       required this.massVolume,
       required this.unit,
-      required this.nutritionFacts});
+      required this.nutritionFacts,
+      required this.allergens});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    if (!nullToAbsent || description != null) {
-      map['description'] = Variable<String>(description);
-    }
     map['product_type'] = Variable<int>(productType);
     map['manufacture_date'] = Variable<DateTime>(manufactureDate);
     map['expiration_date'] = Variable<DateTime>(expirationDate);
@@ -433,6 +430,7 @@ class ProductData extends DataClass implements Insertable<ProductData> {
       map['unit'] = Variable<int>($ProductTable.$converterunit.toSql(unit));
     }
     map['nutrition_facts'] = Variable<String>(nutritionFacts);
+    map['allergens'] = Variable<String>(allergens);
     return map;
   }
 
@@ -440,15 +438,13 @@ class ProductData extends DataClass implements Insertable<ProductData> {
     return ProductCompanion(
       id: Value(id),
       name: Value(name),
-      description: description == null && nullToAbsent
-          ? const Value.absent()
-          : Value(description),
       productType: Value(productType),
       manufactureDate: Value(manufactureDate),
       expirationDate: Value(expirationDate),
       massVolume: Value(massVolume),
       unit: Value(unit),
       nutritionFacts: Value(nutritionFacts),
+      allergens: Value(allergens),
     );
   }
 
@@ -458,7 +454,6 @@ class ProductData extends DataClass implements Insertable<ProductData> {
     return ProductData(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      description: serializer.fromJson<String?>(json['description']),
       productType: serializer.fromJson<int>(json['productType']),
       manufactureDate: serializer.fromJson<DateTime>(json['manufactureDate']),
       expirationDate: serializer.fromJson<DateTime>(json['expirationDate']),
@@ -466,6 +461,7 @@ class ProductData extends DataClass implements Insertable<ProductData> {
       unit: $ProductTable.$converterunit
           .fromJson(serializer.fromJson<int>(json['unit'])),
       nutritionFacts: serializer.fromJson<String>(json['nutritionFacts']),
+      allergens: serializer.fromJson<String>(json['allergens']),
     );
   }
   @override
@@ -474,43 +470,41 @@ class ProductData extends DataClass implements Insertable<ProductData> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'description': serializer.toJson<String?>(description),
       'productType': serializer.toJson<int>(productType),
       'manufactureDate': serializer.toJson<DateTime>(manufactureDate),
       'expirationDate': serializer.toJson<DateTime>(expirationDate),
       'massVolume': serializer.toJson<double>(massVolume),
       'unit': serializer.toJson<int>($ProductTable.$converterunit.toJson(unit)),
       'nutritionFacts': serializer.toJson<String>(nutritionFacts),
+      'allergens': serializer.toJson<String>(allergens),
     };
   }
 
   ProductData copyWith(
           {int? id,
           String? name,
-          Value<String?> description = const Value.absent(),
           int? productType,
           DateTime? manufactureDate,
           DateTime? expirationDate,
           double? massVolume,
           Unit? unit,
-          String? nutritionFacts}) =>
+          String? nutritionFacts,
+          String? allergens}) =>
       ProductData(
         id: id ?? this.id,
         name: name ?? this.name,
-        description: description.present ? description.value : this.description,
         productType: productType ?? this.productType,
         manufactureDate: manufactureDate ?? this.manufactureDate,
         expirationDate: expirationDate ?? this.expirationDate,
         massVolume: massVolume ?? this.massVolume,
         unit: unit ?? this.unit,
         nutritionFacts: nutritionFacts ?? this.nutritionFacts,
+        allergens: allergens ?? this.allergens,
       );
   ProductData copyWithCompanion(ProductCompanion data) {
     return ProductData(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
-      description:
-          data.description.present ? data.description.value : this.description,
       productType:
           data.productType.present ? data.productType.value : this.productType,
       manufactureDate: data.manufactureDate.present
@@ -525,6 +519,7 @@ class ProductData extends DataClass implements Insertable<ProductData> {
       nutritionFacts: data.nutritionFacts.present
           ? data.nutritionFacts.value
           : this.nutritionFacts,
+      allergens: data.allergens.present ? data.allergens.value : this.allergens,
     );
   }
 
@@ -533,66 +528,66 @@ class ProductData extends DataClass implements Insertable<ProductData> {
     return (StringBuffer('ProductData(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('description: $description, ')
           ..write('productType: $productType, ')
           ..write('manufactureDate: $manufactureDate, ')
           ..write('expirationDate: $expirationDate, ')
           ..write('massVolume: $massVolume, ')
           ..write('unit: $unit, ')
-          ..write('nutritionFacts: $nutritionFacts')
+          ..write('nutritionFacts: $nutritionFacts, ')
+          ..write('allergens: $allergens')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, description, productType,
-      manufactureDate, expirationDate, massVolume, unit, nutritionFacts);
+  int get hashCode => Object.hash(id, name, productType, manufactureDate,
+      expirationDate, massVolume, unit, nutritionFacts, allergens);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ProductData &&
           other.id == this.id &&
           other.name == this.name &&
-          other.description == this.description &&
           other.productType == this.productType &&
           other.manufactureDate == this.manufactureDate &&
           other.expirationDate == this.expirationDate &&
           other.massVolume == this.massVolume &&
           other.unit == this.unit &&
-          other.nutritionFacts == this.nutritionFacts);
+          other.nutritionFacts == this.nutritionFacts &&
+          other.allergens == this.allergens);
 }
 
 class ProductCompanion extends UpdateCompanion<ProductData> {
   final Value<int> id;
   final Value<String> name;
-  final Value<String?> description;
   final Value<int> productType;
   final Value<DateTime> manufactureDate;
   final Value<DateTime> expirationDate;
   final Value<double> massVolume;
   final Value<Unit> unit;
   final Value<String> nutritionFacts;
+  final Value<String> allergens;
   const ProductCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    this.description = const Value.absent(),
     this.productType = const Value.absent(),
     this.manufactureDate = const Value.absent(),
     this.expirationDate = const Value.absent(),
     this.massVolume = const Value.absent(),
     this.unit = const Value.absent(),
     this.nutritionFacts = const Value.absent(),
+    this.allergens = const Value.absent(),
   });
   ProductCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    this.description = const Value.absent(),
     required int productType,
     required DateTime manufactureDate,
     required DateTime expirationDate,
     required double massVolume,
     required Unit unit,
     required String nutritionFacts,
+    this.allergens = const Value.absent(),
   })  : name = Value(name),
         productType = Value(productType),
         manufactureDate = Value(manufactureDate),
@@ -603,47 +598,47 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
   static Insertable<ProductData> custom({
     Expression<int>? id,
     Expression<String>? name,
-    Expression<String>? description,
     Expression<int>? productType,
     Expression<DateTime>? manufactureDate,
     Expression<DateTime>? expirationDate,
     Expression<double>? massVolume,
     Expression<int>? unit,
     Expression<String>? nutritionFacts,
+    Expression<String>? allergens,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (description != null) 'description': description,
       if (productType != null) 'product_type': productType,
       if (manufactureDate != null) 'manufacture_date': manufactureDate,
       if (expirationDate != null) 'expiration_date': expirationDate,
       if (massVolume != null) 'mass_volume': massVolume,
       if (unit != null) 'unit': unit,
       if (nutritionFacts != null) 'nutrition_facts': nutritionFacts,
+      if (allergens != null) 'allergens': allergens,
     });
   }
 
   ProductCompanion copyWith(
       {Value<int>? id,
       Value<String>? name,
-      Value<String?>? description,
       Value<int>? productType,
       Value<DateTime>? manufactureDate,
       Value<DateTime>? expirationDate,
       Value<double>? massVolume,
       Value<Unit>? unit,
-      Value<String>? nutritionFacts}) {
+      Value<String>? nutritionFacts,
+      Value<String>? allergens}) {
     return ProductCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
-      description: description ?? this.description,
       productType: productType ?? this.productType,
       manufactureDate: manufactureDate ?? this.manufactureDate,
       expirationDate: expirationDate ?? this.expirationDate,
       massVolume: massVolume ?? this.massVolume,
       unit: unit ?? this.unit,
       nutritionFacts: nutritionFacts ?? this.nutritionFacts,
+      allergens: allergens ?? this.allergens,
     );
   }
 
@@ -655,9 +650,6 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
-    }
-    if (description.present) {
-      map['description'] = Variable<String>(description.value);
     }
     if (productType.present) {
       map['product_type'] = Variable<int>(productType.value);
@@ -678,6 +670,9 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
     if (nutritionFacts.present) {
       map['nutrition_facts'] = Variable<String>(nutritionFacts.value);
     }
+    if (allergens.present) {
+      map['allergens'] = Variable<String>(allergens.value);
+    }
     return map;
   }
 
@@ -686,13 +681,13 @@ class ProductCompanion extends UpdateCompanion<ProductData> {
     return (StringBuffer('ProductCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('description: $description, ')
           ..write('productType: $productType, ')
           ..write('manufactureDate: $manufactureDate, ')
           ..write('expirationDate: $expirationDate, ')
           ..write('massVolume: $massVolume, ')
           ..write('unit: $unit, ')
-          ..write('nutritionFacts: $nutritionFacts')
+          ..write('nutritionFacts: $nutritionFacts, ')
+          ..write('allergens: $allergens')
           ..write(')'))
         .toString();
   }
@@ -1679,24 +1674,24 @@ typedef $$CategoryTableProcessedTableManager = ProcessedTableManager<
 typedef $$ProductTableCreateCompanionBuilder = ProductCompanion Function({
   Value<int> id,
   required String name,
-  Value<String?> description,
   required int productType,
   required DateTime manufactureDate,
   required DateTime expirationDate,
   required double massVolume,
   required Unit unit,
   required String nutritionFacts,
+  Value<String> allergens,
 });
 typedef $$ProductTableUpdateCompanionBuilder = ProductCompanion Function({
   Value<int> id,
   Value<String> name,
-  Value<String?> description,
   Value<int> productType,
   Value<DateTime> manufactureDate,
   Value<DateTime> expirationDate,
   Value<double> massVolume,
   Value<Unit> unit,
   Value<String> nutritionFacts,
+  Value<String> allergens,
 });
 
 final class $$ProductTableReferences
@@ -1750,9 +1745,6 @@ class $$ProductTableFilterComposer
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get description => $composableBuilder(
-      column: $table.description, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<DateTime> get manufactureDate => $composableBuilder(
       column: $table.manufactureDate,
       builder: (column) => ColumnFilters(column));
@@ -1772,6 +1764,9 @@ class $$ProductTableFilterComposer
   ColumnFilters<String> get nutritionFacts => $composableBuilder(
       column: $table.nutritionFacts,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get allergens => $composableBuilder(
+      column: $table.allergens, builder: (column) => ColumnFilters(column));
 
   $$CategoryTableFilterComposer get productType {
     final $$CategoryTableFilterComposer composer = $composerBuilder(
@@ -1830,9 +1825,6 @@ class $$ProductTableOrderingComposer
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get description => $composableBuilder(
-      column: $table.description, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<DateTime> get manufactureDate => $composableBuilder(
       column: $table.manufactureDate,
       builder: (column) => ColumnOrderings(column));
@@ -1850,6 +1842,9 @@ class $$ProductTableOrderingComposer
   ColumnOrderings<String> get nutritionFacts => $composableBuilder(
       column: $table.nutritionFacts,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get allergens => $composableBuilder(
+      column: $table.allergens, builder: (column) => ColumnOrderings(column));
 
   $$CategoryTableOrderingComposer get productType {
     final $$CategoryTableOrderingComposer composer = $composerBuilder(
@@ -1887,9 +1882,6 @@ class $$ProductTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<String> get description => $composableBuilder(
-      column: $table.description, builder: (column) => column);
-
   GeneratedColumn<DateTime> get manufactureDate => $composableBuilder(
       column: $table.manufactureDate, builder: (column) => column);
 
@@ -1904,6 +1896,9 @@ class $$ProductTableAnnotationComposer
 
   GeneratedColumn<String> get nutritionFacts => $composableBuilder(
       column: $table.nutritionFacts, builder: (column) => column);
+
+  GeneratedColumn<String> get allergens =>
+      $composableBuilder(column: $table.allergens, builder: (column) => column);
 
   $$CategoryTableAnnotationComposer get productType {
     final $$CategoryTableAnnotationComposer composer = $composerBuilder(
@@ -1973,46 +1968,46 @@ class $$ProductTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<String> name = const Value.absent(),
-            Value<String?> description = const Value.absent(),
             Value<int> productType = const Value.absent(),
             Value<DateTime> manufactureDate = const Value.absent(),
             Value<DateTime> expirationDate = const Value.absent(),
             Value<double> massVolume = const Value.absent(),
             Value<Unit> unit = const Value.absent(),
             Value<String> nutritionFacts = const Value.absent(),
+            Value<String> allergens = const Value.absent(),
           }) =>
               ProductCompanion(
             id: id,
             name: name,
-            description: description,
             productType: productType,
             manufactureDate: manufactureDate,
             expirationDate: expirationDate,
             massVolume: massVolume,
             unit: unit,
             nutritionFacts: nutritionFacts,
+            allergens: allergens,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String name,
-            Value<String?> description = const Value.absent(),
             required int productType,
             required DateTime manufactureDate,
             required DateTime expirationDate,
             required double massVolume,
             required Unit unit,
             required String nutritionFacts,
+            Value<String> allergens = const Value.absent(),
           }) =>
               ProductCompanion.insert(
             id: id,
             name: name,
-            description: description,
             productType: productType,
             manufactureDate: manufactureDate,
             expirationDate: expirationDate,
             massVolume: massVolume,
             unit: unit,
             nutritionFacts: nutritionFacts,
+            allergens: allergens,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) =>

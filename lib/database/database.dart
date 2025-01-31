@@ -16,7 +16,12 @@ import 'package:freaky_fridge/database/models/wish_list_item.dart';
 part 'database.g.dart';
 
 @DriftDatabase(
-  tables: [Product, app_models.Category, ProductTransaction, WishListItem],
+  tables: [
+    Product,
+    app_models.Category,
+    ProductTransaction,
+    WishListItem,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   // Singleton instance
@@ -37,7 +42,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   // Delegate methods to repositories
   Future<List<CategoryData>> getAllCategories() =>

@@ -86,6 +86,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple>
               massVolume: productData[4],
               unit: Unit.values.firstWhere((u) => u.name == productData[5]),
               nutritionFacts: productData[6],
+              allergens: "[]"
             ),
           ),
         );

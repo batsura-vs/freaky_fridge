@@ -49,6 +49,10 @@ dependencies:
   timezone: ^0.10.0
   path_provider: ^2.1.5
   path: ^1.9.0
+  dio: ^5.8.0+1
+  xml: ^6.3.0
+  image_picker: ^1.1.2
+  together_ai_sdk: ^2.0.2
 
 dev_dependencies:
   flutter_test:

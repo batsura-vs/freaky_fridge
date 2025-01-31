@@ -1,17 +1,23 @@
+import 'dart:convert';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:freaky_fridge/database/database.dart';
-import 'package:freaky_fridge/database/models/product.dart';
 import 'package:freaky_fridge/pages/creation/product.dart';
 import 'package:freaky_fridge/pages/qr/qr_product.dart';
+import 'package:freaky_fridge/services/allergen_service.dart';
+import 'package:freaky_fridge/services/openai_service.dart';
 import 'package:get/get.dart';
 import 'package:freaky_fridge/controllers/search_controller.dart';
-import 'package:intl/intl.dart';
+import 'package:freaky_fridge/database/models/product.dart';
 
 class ProductsPage extends StatelessWidget {
   ProductsPage({super.key});
 
   final searchController = Get.put(SearchController());
   final selectedCategory = RxInt(-1);
+  final allergenService = Get.put(AllergenService(
+    database: AppDatabase.instance,
+    openAIService: Get.put(OpenAIService()),
+  ));
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +199,7 @@ class ProductsPage extends StatelessWidget {
             .toList();
 
         return ListView.builder(
-          key: UniqueKey(),
+          physics: const BouncingScrollPhysics(),
           itemCount: filteredProducts.length,
           itemBuilder: (context, index) =>
               _buildProductCard(context, filteredProducts[index]),
@@ -246,125 +252,144 @@ class ProductsPage extends StatelessWidget {
   }
 
   Widget _buildProductCardContent(ProductData product) {
-    return FutureBuilder<CategoryData>(
-      future: AppDatabase.instance.getCategoryById(product.productType),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox.shrink();
-
-        final category = snapshot.data!;
-        return Row(
-          children: [
-            Container(
-              width: 4,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Color(category.color),
-                borderRadius:
-                    const BorderRadius.horizontal(left: Radius.circular(12)),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
+    final daysUntilExpiration = product.expirationDate.difference(DateTime.now()).inDays;
+    final List<Map<String, String>> allergens = _getProductAllergens(product);
+    
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: _buildProductInfo(product, category)),
-                    _buildQrButton(product),
+                    Text(
+                      product.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    FutureBuilder<CategoryData>(
+                      future: AppDatabase.instance.getCategoryById(product.productType),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const SizedBox.shrink();
+                        }
+                        return Row(
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              margin: const EdgeInsets.only(right: 6),
+                              decoration: BoxDecoration(
+                                color: Color(snapshot.data!.color),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            Text(
+                              '${product.massVolume} ${_formatUnit(product.unit)} • ${snapshot.data!.name}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white.withAlpha((255 * 0.7).toInt()),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _getExpirationColor(daysUntilExpiration).withAlpha((255 * 0.2).toInt()),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${daysUntilExpiration.abs()} ${_getDaysText(daysUntilExpiration)}',
+                  style: TextStyle(
+                    color: _getExpirationColor(daysUntilExpiration),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.qr_code, size: 20),
+                onPressed: () => Get.to(() => QrProductWidget(product: product)),
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.only(left: 8),
+              ),
+            ],
+          ),
+          if (allergens.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: allergens.map((allergen) {
+                final color = _getAllergenColor(allergen['importance'] ?? 'low');
+                return Chip(
+                  label: Text(
+                    allergen['name'] ?? '',
+                    style: TextStyle(
+                      color: color.shade700,
+                      fontSize: 12,
+                    ),
+                  ),
+                  backgroundColor: color.withAlpha((255 * 0.2).toInt()),
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                );
+              }).toList(),
             ),
           ],
-        );
-      },
+        ],
+      ),
     );
   }
 
-  Widget _buildProductInfo(ProductData product, CategoryData category) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          product.name,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          category.name,
-          style: TextStyle(
-            fontSize: 13,
-            color: Color(category.color)..withAlpha((255 * 0.8).toInt()),
-          ),
-        ),
-        const SizedBox(height: 8),
-        _buildProductDetails(product),
-      ],
-    );
+  List<Map<String, String>> _getProductAllergens(ProductData product) {
+    try {
+      final List<dynamic> decoded = jsonDecode(product.allergens);
+      return decoded.map((e) => Map<String, String>.from(e)).toList();
+    } catch (e) {
+      return [];
+    }
   }
 
-  Widget _buildProductDetails(ProductData product) {
-    final daysUntilExpiration =
-        product.expirationDate.difference(DateTime.now()).inDays;
-    final expirationColor = _getExpirationColor(daysUntilExpiration);
-
-    return Row(
-      children: [
-        Icon(Icons.event, size: 14, color: expirationColor),
-        const SizedBox(width: 4),
-        Text(
-          DateFormat('dd.MM.yyyy').format(product.expirationDate),
-          style: TextStyle(fontSize: 13, color: expirationColor),
-        ),
-        const SizedBox(width: 16),
-        Icon(Icons.scale,
-            size: 14, color: Colors.white..withAlpha((255 * 0.6).toInt())),
-        const SizedBox(width: 4),
-        Text(
-          '${product.massVolume} ${_getUnitLabel(product.unit)}',
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.white..withAlpha((255 * 0.6).toInt()),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Color _getExpirationColor(int daysUntilExpiration) {
-    if (daysUntilExpiration < 0) {
-      return Colors.red..withAlpha((255 * 0.8).toInt());
-    }
-    if (daysUntilExpiration <= 3) {
-      return Colors.red..withAlpha((255 * 0.6).toInt());
-    }
-    if (daysUntilExpiration <= 7) {
-      return Colors.orange..withAlpha((255 * 0.7).toInt());
-    }
-    return Colors.white..withAlpha((255 * 0.6).toInt());
-  }
-
-  String _getUnitLabel(Unit unit) {
+  String _formatUnit(Unit unit) {
     return switch (unit) {
-      Unit.grams => "г",
-      Unit.kilograms => "кг",
-      Unit.milliliters => "мл",
-      Unit.liters => "л",
-      Unit.pieces => "шт",
+      Unit.grams => 'г',
+      Unit.kilograms => 'кг',
+      Unit.milliliters => 'мл',
+      Unit.liters => 'л',
+      Unit.pieces => 'шт',
     };
   }
 
-  Widget _buildQrButton(ProductData product) {
-    return IconButton(
-      icon: Icon(
-        Icons.qr_code,
-        color: Colors.white..withAlpha((255 * 0.6).toInt()),
-        size: 20,
-      ),
-      onPressed: () => Get.to(() => QrProductWidget(product: product)),
-    );
+  Color _getExpirationColor(int daysUntilExpiration) {
+    if (daysUntilExpiration < 0) return Colors.red;
+    if (daysUntilExpiration <= 3) return Colors.orange;
+    if (daysUntilExpiration <= 7) return Colors.yellow;
+    return Colors.green;
+  }
+
+  String _getDaysText(int days) {
+    if (days < 0) return 'дн. просрочен';
+    return 'дн. осталось';
+  }
+
+  MaterialColor _getAllergenColor(String importance) {
+    return switch (importance.toLowerCase()) {
+      'high' => Colors.red,
+      'medium' => Colors.orange,
+      _ => Colors.yellow,
+    };
   }
 }

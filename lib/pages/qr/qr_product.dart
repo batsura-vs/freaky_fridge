@@ -53,7 +53,7 @@ class QrProductWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const Text(
-                      'Scan this QR code to import product details',
+                      'Отсканируйте этот QR-код для импорта данных о продукте',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
@@ -117,7 +117,7 @@ class QrProductWidget extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
-                        'Tap to view fullscreen',
+                        'Нажмите для полноэкранного просмотра',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
@@ -133,16 +133,16 @@ class QrProductWidget extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildInfoRow('Category', category.name),
+                            _buildInfoRow('Категория', category.name),
                             const Divider(),
-                            _buildInfoRow('Amount',
+                            _buildInfoRow('Количество',
                                 '${product.massVolume} ${product.unit.name}'),
                             const Divider(),
-                            _buildInfoRow('Manufactured',
+                            _buildInfoRow('Дата производства',
                                 _formatDate(product.manufactureDate)),
                             const Divider(),
                             _buildInfoRow(
-                                'Expires', _formatDate(product.expirationDate)),
+                                'Срок годности', _formatDate(product.expirationDate)),
                           ],
                         ),
                       ),
@@ -153,13 +153,13 @@ class QrProductWidget extends StatelessWidget {
             ),
             floatingActionButton: FloatingActionButton.extended(
               icon: const Icon(Icons.share),
-              label: const Text('Share QR Code'),
+              label: const Text('Поделиться QR-кодом'),
               onPressed: () async {
                 var data = await painter.toImageData(600);
                 if (data == null) {
                   Get.showSnackbar(
                     const GetSnackBar(
-                      message: 'Failed to generate QR code',
+                      message: 'Не удалось сгенерировать QR-код',
                       duration: Duration(seconds: 2),
                     ),
                   );
@@ -232,6 +232,7 @@ class _FullscreenQR extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
+          tooltip: 'Закрыть',
         ),
       ),
       body: Center(

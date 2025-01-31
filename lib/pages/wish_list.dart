@@ -6,12 +6,14 @@ import 'package:get/get.dart';
 class WishList extends StatelessWidget {
   final wishController = Get.put(WishListController());
   final _textController = TextEditingController();
+  final _quantityController = TextEditingController();
 
   WishList({super.key});
 
   void _showModalBottomSheet(BuildContext context, int index) {
     final currentQuantity = wishController.wishList[index].quantity;
     wishController.quantity.value = currentQuantity;
+    _quantityController.text = currentQuantity.toString();
 
     showModalBottomSheet(
       context: context,
@@ -65,12 +67,14 @@ class WishList extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Icons.delete_outline),
                         color: Colors.red,
-                        onPressed: () {
-                          Get.back();
-                          _showDeleteConfirmation(
-                            context,
+                        onPressed: () async {
+                          await wishController.removeFromWishList(
                             wishController.wishList[index].productName,
                           );
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                          _showSnackBar('Продукт удален');
                         },
                       ),
                     ],
@@ -101,21 +105,20 @@ class WishList extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       child: Row(
                         children: [
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                if (wishController.quantity.value > 1) {
-                                  wishController.quantity.value--;
-                                }
-                              },
-                              child: SizedBox(
-                                width: 56,
-                                height: 56,
-                                child: Icon(
-                                  Icons.remove,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
+                          InkWell(
+                            onTap: () {
+                              if (wishController.quantity.value > 1) {
+                                wishController.quantity.value--;
+                              }
+                              _quantityController.text =
+                                  wishController.quantity.value.toString();
+                            },
+                            child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Icon(
+                                Icons.remove,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                           ),
@@ -131,55 +134,50 @@ class WishList extends StatelessWidget {
                                 ),
                               ),
                               child: Center(
-                                child: Obx(() => TextField(
-                                      textAlign: TextAlign.center,
-                                      keyboardType: TextInputType.number,
-                                      controller: TextEditingController(
-                                        text:
-                                            '${wishController.quantity.value}',
+                                child: TextField(
+                                  textAlign: TextAlign.center,
+                                  keyboardType: TextInputType.number,
+                                  controller: _quantityController,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                      decoration: const InputDecoration(
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.zero,
-                                        fillColor: Colors.transparent,
-                                        filled: false,
-                                        enabledBorder: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                        ),
-                                      ),
-                                      onChanged: (value) {
-                                        final newValue = int.tryParse(value);
-                                        if (newValue != null && newValue > 0) {
-                                          wishController.quantity.value =
-                                              newValue;
-                                        }
-                                      },
-                                    )),
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.zero,
+                                    fillColor: Colors.transparent,
+                                    filled: false,
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                    ),
+                                  ),
+                                  onChanged: (value) {
+                                    final newValue = int.tryParse(value);
+                                    if (newValue != null && newValue > 0) {
+                                      wishController.quantity.value = newValue;
+                                    }
+                                  },
+                                ),
                               ),
                             ),
                           ),
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                wishController.quantity.value++;
-                              },
-                              child: SizedBox(
-                                width: 56,
-                                height: 56,
-                                child: Icon(
-                                  Icons.add,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
+                          InkWell(
+                            onTap: () {
+                              wishController.quantity.value++;
+                              _quantityController.text =
+                                  wishController.quantity.value.toString();
+                            },
+                            child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Icon(
+                                Icons.add,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                           ),
@@ -227,48 +225,12 @@ class WishList extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, String productName) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Подтверждение'),
-          content: Text('Удалить "$productName" из списка?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Get.back();
-              },
-              child: const Text('Отмена'),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
-              onPressed: () async {
-                await wishController.removeFromWishList(productName);
-                Get.back();
-                _showSnackBar('Продукт удален');
-              },
-              child: const Text('Удалить'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(Get.context!).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        duration: const Duration(seconds: 2),
-      ),
+    Get.snackbar(
+      "Сообщение",
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
     );
   }
 
