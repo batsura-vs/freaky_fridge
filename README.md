@@ -116,7 +116,7 @@ Freaky Fridge - это современное мобильное приложе�
 
 1. Клонирование репозитория:
 ```bash
-git clone https://github.com/yourusername/freaky_fridge.git
+git clone https://github.com/batsura-vs/freaky_fridge.git
 cd freaky_fridge
 ```
 
