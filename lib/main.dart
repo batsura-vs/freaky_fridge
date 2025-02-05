@@ -13,8 +13,7 @@ import 'package:freaky_fridge/services/expiration_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final expirationService = ExpirationService();
-  await expirationService.init();
+  await ExpirationService().init();
   runApp(const MyApp());
 }
 
