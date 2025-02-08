@@ -116,9 +116,12 @@ Freaky Fridge - это современное мобильное приложе�
 - 500MB свободного места
 
 ### Шаги установки
-Через RuStore:
+### Через RuStore:
+
 [Ссылка на RuStore](https://www.rustore.ru/catalog/app/com.freaky_incorporated.freaky_fridge)
-Через консоль:
+
+
+### Через консоль:
 1. Клонирование репозитория:
 ```bash
 git clone https://github.com/batsura-vs/freaky_fridge.git
